@@ -6,6 +6,10 @@ import Input from '../../../components/inputs/Input';
 import Button from '../../../components/Button';
 import { LoginFormType, loginSchema } from '../validations/loginSchema';
 import { RegisterFormType, registerSchema } from '../validations/registerSchema';
+import { useNavigate } from 'react-router-dom';
+import { loginService, registerService } from '../../../services/auth/authService';
+import { useAuth } from '../../../providers/AuthProvider';
+import axios from 'axios';
 
 
 type Variant = 'LOGIN' | 'REGISTER';
@@ -13,7 +17,9 @@ type Variant = 'LOGIN' | 'REGISTER';
 const AuthForm = () => {
     const [variant, setVariant] = useState<Variant>('LOGIN');
     const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
+    const { login: loginContext } = useAuth();
 
     const {
         register,
@@ -29,11 +35,34 @@ const AuthForm = () => {
         setVariant((prev) => (prev === 'LOGIN' ? 'REGISTER' : 'LOGIN'));
     }, [reset]);
 
-    const onSubmit: SubmitHandler<LoginFormType | RegisterFormType> = (data) => {
+
+    const onSubmit: SubmitHandler<LoginFormType | RegisterFormType> = async (data) => {
         setIsLoading(true);
-        console.log(data);
-        setTimeout(() => setIsLoading(false), 3000);
+        try {
+            if (variant === 'LOGIN') {
+                const response = await loginService(data as LoginFormType);
+                loginContext(response.token);
+                navigate('/dashboard');
+            } else {
+                const response = await registerService(data as any);
+                loginContext(response.token);
+                navigate('/dashboard');
+            }
+        } catch (error: any) {
+
+            // handle errors
+            if (axios.isAxiosError(error)) {
+                console.error(error.response?.data?.message || 'Authentication failed');
+                alert(error.response?.data?.message || 'Authentication failed');
+            } else {
+                console.error('An unexpected error occurred:', error);
+                alert('An unexpected error occurred');
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
+
 
     return (
         <div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>

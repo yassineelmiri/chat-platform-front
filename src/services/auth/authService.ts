@@ -1,35 +1,48 @@
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosInstance';
 
 
-const apiUrl = import.meta.env.VITE_API_URL;
-
-
-interface ILogin {
-  email: string,
-  password: string
+interface LoginData {
+  email: string;
+  password: string;
 }
-export const login = async (dataLogin: ILogin) => {
+
+interface RegisterData extends LoginData {
+  usernam: string;
+  confirmPassword: string
+}
+
+interface AuthResponse {
+  token: string;
+  user?: {
+    id: string;
+    email: string;
+
+  };
+}
+
+export const loginService = async (loginData: LoginData): Promise<AuthResponse> => {
   try {
-    const response = await axios.post(`${apiUrl}/login`, dataLogin);
+    const response = await axiosInstance.post<AuthResponse>('/auth/login', loginData);
     return response.data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    throw error.response.data;
+    if (axios.isAxiosError(error)) {
+      throw error.response?.data?.message || 'Login failed';
+    } else {
+      throw 'An unexpected error occurred during login';
+    }
   }
 };
 
-
-interface IRegister extends ILogin {
-  username: string
-}
-
-
-export const Register = async (resgiterData: IRegister) => {
+export const registerService = async (registerData: RegisterData): Promise<AuthResponse> => {
   try {
-    const response = await axios.post(`${apiUrl}/signup`, resgiterData);
+    const response = await axiosInstance.post<AuthResponse>('/auth/signup', registerData);
     return response.data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    throw error.response.data;
+    if (axios.isAxiosError(error)) {
+      throw error.response?.data?.message || 'Registration failed';
+    } else {
+      throw 'An unexpected error occurred during registration';
+    }
   }
 };
