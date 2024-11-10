@@ -1,15 +1,14 @@
 import axios from 'axios';
 import axiosInstance from '../../utils/axiosInstance';
-
+import { delay } from '../../utils';
 
 interface LoginData {
   email: string;
   password: string;
 }
 
-interface RegisterData extends LoginData {
-  usernam: string;
-  confirmPassword: string
+export interface RegisterData extends LoginData {
+  username: string;
 }
 
 interface AuthResponse {
@@ -17,32 +16,39 @@ interface AuthResponse {
   user?: {
     id: string;
     email: string;
-
   };
 }
 
 export const loginService = async (loginData: LoginData): Promise<AuthResponse> => {
+  delay(3000)
+
   try {
     const response = await axiosInstance.post<AuthResponse>('/auth/login', loginData);
     return response.data;
   } catch (error: any) {
+    let errorMessage = 'Login failed';
     if (axios.isAxiosError(error)) {
-      throw error.response?.data?.message || 'Login failed';
-    } else {
-      throw 'An unexpected error occurred during login';
+      errorMessage = error.response?.data?.message ?? errorMessage;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
+    throw new Error(errorMessage);
   }
 };
 
 export const registerService = async (registerData: RegisterData): Promise<AuthResponse> => {
+  delay(3000)
+
   try {
     const response = await axiosInstance.post<AuthResponse>('/auth/signup', registerData);
     return response.data;
   } catch (error: any) {
+    let errorMessage = 'Registration failed';
     if (axios.isAxiosError(error)) {
-      throw error.response?.data?.message || 'Registration failed';
-    } else {
-      throw 'An unexpected error occurred during registration';
+      errorMessage = error.response?.data?.message ?? errorMessage;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
+    throw new Error(errorMessage);
   }
 };

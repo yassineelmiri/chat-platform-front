@@ -7,7 +7,7 @@ import Button from '../../../components/Button';
 import { LoginFormType, loginSchema } from '../validations/loginSchema';
 import { RegisterFormType, registerSchema } from '../validations/registerSchema';
 import { useNavigate } from 'react-router-dom';
-import { loginService, registerService } from '../../../services/auth/authService';
+import { loginService, RegisterData, registerService } from '../../../services/auth/authService';
 import { useAuth } from '../../../providers/AuthProvider';
 import axios from 'axios';
 
@@ -36,32 +36,31 @@ const AuthForm = () => {
     }, [reset]);
 
 
+
     const onSubmit: SubmitHandler<LoginFormType | RegisterFormType> = async (data) => {
         setIsLoading(true);
         try {
             if (variant === 'LOGIN') {
                 const response = await loginService(data as LoginFormType);
                 loginContext(response.token);
-                navigate('/dashboard');
+                navigate('/');
             } else {
-                const response = await registerService(data as any);
+                const { email, password, username } = data as RegisterFormType;
+                const registerData: RegisterData = { email, password, username };
+                const response = await registerService(registerData);
+
                 loginContext(response.token);
-                navigate('/dashboard');
+                navigate('/');
             }
         } catch (error: any) {
-
-            // handle errors
-            if (axios.isAxiosError(error)) {
-                console.error(error.response?.data?.message || 'Authentication failed');
-                alert(error.response?.data?.message || 'Authentication failed');
-            } else {
-                console.error('An unexpected error occurred:', error);
-                alert('An unexpected error occurred');
-            }
+            console.error(error.message || 'Authentication failed');
+            alert(error.message || 'Authentication failed');
         } finally {
             setIsLoading(false);
         }
     };
+
+
 
 
     return (

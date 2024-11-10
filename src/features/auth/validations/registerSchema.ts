@@ -1,18 +1,15 @@
 import { z } from 'zod';
-import { loginSchema } from './loginSchema';
 
-export const registerSchema = loginSchema
-    .extend({
-        username: z
-            .string()
-            .min(3, "Username must be at least 3 characters")
-            .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers and underscores")
-            .optional(),
-        confirmPassword: z.string(),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-        message: 'Passwords do not match',
-        path: ['confirmPassword'],
-    });
+export const registerSchema = z
+  .object({
+    email: z.string().email(),
+    username: z.string().min(1, 'Username is required'),
+    password: z.string().min(6, 'Password must be at least 6 characters long'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  });
 
 export type RegisterFormType = z.infer<typeof registerSchema>;
