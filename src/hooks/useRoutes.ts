@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { HiChat, HiUsers } from 'react-icons/hi';
 import { IconType } from "react-icons";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
 import { FiLogOut } from "react-icons/fi";
 
@@ -19,9 +19,14 @@ const useRoutes = (): Route[] => {
 
 
     const { logout } = useAuth()
+    const navigate = useNavigate();
     const location = useLocation();
     const pathname = location.pathname;
 
+    // function onLogout() {
+    //     logout()
+    //     navigate('/auth')
+    // }
 
     const routes: Route[] = useMemo(
         () => [

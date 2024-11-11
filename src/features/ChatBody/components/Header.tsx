@@ -73,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({ chat }) => {
                         <Avatar user={otherUser} />
                     )}
                     <div className="flex flex-col">
-                        <div>{chat.name || otherUser?.name}</div>
+                        <div>{chat.name || otherUser?.username}</div>
                         <div className="text-sm text-gray-500">{statusText}</div>
                     </div>
                 </div>

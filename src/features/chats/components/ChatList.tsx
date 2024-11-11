@@ -22,6 +22,9 @@ const ChatList: React.FC<ChatListProps> = ({
   const { data: chats, isLoading, error } = useChats();  // fetch chats form hook
   const { chatId, isOpen } = useCurrentChat();  //get chatid 
 
+  console.log(chats)
+
+
   if (isLoading) return <div>Loading chats...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!chats?.length) return <div>No chats found</div>;
@@ -67,9 +70,9 @@ const ChatList: React.FC<ChatListProps> = ({
           </div>
           {chats.map((item) => (
             <ChatBox
-              key={item.id}
-              data={item}
-              selected={chatId === item.id}
+              key={item._id}
+              chat={item}
+              selected={chatId === item._id}
             />
           ))}
         </div>

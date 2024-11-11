@@ -1,26 +1,19 @@
 import { useMemo } from "react";
-import { Chat } from "../dummyData/chats";
-import { EMAIL_AUTHED, User } from "../dummyData/users";
+import {  Member } from "../types/chat";
+import { useAuth } from "../providers/AuthProvider";
 
+const useOtherUser = ( users: Member[] ) => {
+  const {user} = useAuth();
 
-const useOtherUser = (chat: Chat | { users: User[] }) => {
+  const otherUser = useMemo(() => {
+    const currentUserEmail = user?.email;
 
+    const otherUser = users.filter((user:Member) => user.email !== currentUserEmail);
 
-    const otherUser = useMemo(() => {
-        const currentUserEmail = EMAIL_AUTHED;
+    return otherUser[0];
+  }, [user?.email, users]);
 
-        if (!currentUserEmail) {
-            return null; // Return null if session or email is undefined
-        }
-
-        // Filter to find users excluding the current user by email
-        const filteredUsers = chat.users.filter((user) => user.email !== currentUserEmail);
-
-        // Return the first match or null if none found
-        return filteredUsers.length > 0 ? filteredUsers[0] : null;
-    }, [EMAIL_AUTHED, chat.users]);
-
-    return otherUser;
+  return otherUser;
 };
 
 export default useOtherUser;

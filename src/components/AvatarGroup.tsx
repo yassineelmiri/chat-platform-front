@@ -1,6 +1,7 @@
+import { Member } from "../types/chat";
 
 interface AvatarGroupProps {
-    users?: any[];
+    users?: Member[];
 };
 
 const AvatarGroup: React.FC<AvatarGroupProps> = ({
@@ -18,7 +19,7 @@ const AvatarGroup: React.FC<AvatarGroupProps> = ({
         <div className="relative h-11 w-11">
             {slicedUsers.map((user, index) => (
                 <div
-                    key={user.id}
+                    key={user._id}
                     className={`
             absolute
             inline-block 

@@ -28,9 +28,13 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
     const otherUser = useOtherUser(data);
 
 
+    if (!otherUser) {
+        return <h2>no mambers</h2>
+    }
+
     const title = useMemo(() => {
-        return data.name || otherUser?.name;
-    }, [data.name, otherUser?.name]);
+        return data.name || otherUser?.username;
+    }, [data.name, otherUser?.username]);
 
 
     const statusText = useMemo(() => {

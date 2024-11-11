@@ -1,14 +1,13 @@
 import React from 'react';
 import EmptyState from '../../../components/EmptyState';
 import Header from './Header';
-import { useChat } from '../../../hooks/useChats';
 import useCurrentChat from '../../../hooks/useCurrentChat';
 
 const ChatBody: React.FC = () => {
     const { isOpen, chatId } = useCurrentChat();
-    const { data: chat, isLoading, error } = useChat(chatId);
+    // const { data: chat, isLoading, error } = useChat(chatId);
 
-    if (!chatId) {
+    if (!chatId || true) {
         return (
             <div className="lg:pl-80 h-full w-full">
                 <div className="flex flex-col h-full">
@@ -18,14 +17,14 @@ const ChatBody: React.FC = () => {
         );
     }
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
-    if (!chat) return null;
+    // if (isLoading) return <div>Loading...</div>;
+    // if (error) return <div>Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
+    // if (!chat) return null;
 
     return (
         <div className="lg:pl-80 h-full w-full">
             <div className="h-full flex flex-col">
-                <Header chat={chat} />
+                <Header chat={[chat]} />
                 <div className="flex flex-col flex-grow bg-[#DBEAFE] h-auto p-6 w-full">
                     {chat.messages && chat.messages.length > 0 ? (
                         <div className="flex-grow">

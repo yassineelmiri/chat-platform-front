@@ -5,71 +5,56 @@ import AvatarGroup from "../../../components/AvatarGroup";
 import Avatar from "../../../components/Avatar";
 import { format } from "date-fns";
 import useOtherUser from "../../../hooks/useOtherUser";
-import { EMAIL_AUTHED, User } from "../../../dummyData/users";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../../providers/AuthProvider";
+
+import { Chat } from "../../../types/chat";
 
 
 interface ChatBoxProps {
-    data: any,
+    chat: Chat,
     selected?: boolean;
 }
 
 
 const ChatBox: React.FC<ChatBoxProps> = ({
-    data,
+    chat,
     selected
 }) => {
     const navigate = useNavigate();
 
-
-    const otherUser = useOtherUser(data);
+    const { user } = useAuth()
+    const otherUser = useOtherUser(chat.members);
     const handleClick = useCallback(() => {
-        navigate(`/chat/${data.id}`);
+        navigate(`/chat/${chat._id}`);
 
         // when click on conversation 
-    }, [data]);
+    }, [chat]);
 
 
 
-    const lastMessage = useMemo(() => {
-        const messages = data.messages || [];
+    // const lastMessage = useMemo(() => {
+    //     const messages = chat.messages || [];
 
-        return messages[messages.length - 1];
-    }, [data.messages]);
-
-
-
-    const userEmail = useMemo(() => EMAIL_AUTHED,
-        [EMAIL_AUTHED]);
-
-    const hasSeen = useMemo(() => {
-        if (!lastMessage) {
-            return false;
-        }
-
-        const seenArray = lastMessage.seen || [];
+    //     return messages[messages.length - 1];
+    // }, [chat.lastMessage]);
 
 
 
-        if (!userEmail) {
-            return false;
-        }
+    const userEmail = useMemo(() => user?.email,
+        [user?.email]);
 
-        return seenArray
-            .filter((user: User) => user.email === userEmail).length !== 0;
-    }, [userEmail, lastMessage]);
+
 
     const lastMessageText = useMemo(() => {
-        if (lastMessage?.image) {
-            return 'Sent an image';
-        }
 
-        if (lastMessage?.body) {
-            return lastMessage?.body
+
+        if (chat?.lastMessage) {
+            return chat?.lastMessage
         }
 
         return 'Started a conversation';
-    }, [lastMessage]);
+    }, [chat?.lastMessage]);
 
     return (
         <div
@@ -89,8 +74,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                 selected ? 'bg-neutral-100' : 'bg-white'
             )}
         >
-            {data.isGroup ? (
-                <AvatarGroup users={data.users} />
+            {chat.isGroup ? (
+                <AvatarGroup users={chat.members} />
             ) : (
                 <Avatar user={otherUser} />
             )}
@@ -99,9 +84,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                     <span className="absolute inset-0" aria-hidden="true" />
                     <div className="flex justify-between items-center mb-1">
                         <p className="text-md font-medium text-gray-900">
-                            {data.name || otherUser?.name}
+                            {chat.isGroup ? chat.name : otherUser?.username}
                         </p>
-                        {lastMessage?.createdAt && (
+                        {chat?.createdAt && (
                             <p
                                 className="
                   text-xs 
@@ -109,7 +94,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                   font-light
                 "
                             >
-                                {format(new Date(lastMessage.createdAt), 'p')}
+                                {format(new Date(chat.createdAt), 'p')}
                             </p>
                         )}
                     </div>
@@ -118,7 +103,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
               truncate 
               text-sm
               `,
-                            hasSeen ? 'text-gray-500' : 'text-black font-medium'
+                            false ? 'text-gray-500' : 'text-black font-medium'
                         )}>
                         {lastMessageText}
                     </p>

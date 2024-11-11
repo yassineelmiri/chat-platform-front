@@ -9,7 +9,6 @@ import { RegisterFormType, registerSchema } from '../validations/registerSchema'
 import { useNavigate } from 'react-router-dom';
 import { loginService, RegisterData, registerService } from '../../../services/auth/authService';
 import { useAuth } from '../../../providers/AuthProvider';
-import axios from 'axios';
 
 
 type Variant = 'LOGIN' | 'REGISTER';
@@ -37,20 +36,27 @@ const AuthForm = () => {
 
 
 
+    // Example of loginService response handling
     const onSubmit: SubmitHandler<LoginFormType | RegisterFormType> = async (data) => {
         setIsLoading(true);
         try {
             if (variant === 'LOGIN') {
                 const response = await loginService(data as LoginFormType);
-                loginContext(response.token);
-                navigate('/');
+
+                const user = response?.user;
+                if (user) {
+                    loginContext(response.token, user);
+                    navigate('/');
+                } else {
+                    throw new Error('User data is missing');
+                }
             } else {
                 const { email, password, username } = data as RegisterFormType;
                 const registerData: RegisterData = { email, password, username };
                 const response = await registerService(registerData);
+                console.log(response);
 
-                loginContext(response.token);
-                navigate('/');
+                navigate('/auth');
             }
         } catch (error: any) {
             console.error(error.message || 'Authentication failed');
@@ -59,6 +65,8 @@ const AuthForm = () => {
             setIsLoading(false);
         }
     };
+
+
 
 
 

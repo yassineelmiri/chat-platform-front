@@ -1,44 +1,44 @@
 export interface User {
     id: string;
-    name: string;
+    username: string;
     email: string;
     avatar: string;
     isOnline: boolean;
 }
-export const EMAIL_AUTHED = "bouchamajob@gmail.com"
+export const EMAIL_AUTHED = "sisko92@gmail.com"
 
 export const users: User[] = [
     {
         id: "1",
-        name: "Alice Johnson",
+        username: "Alice Johnson",
         email: "alice.johnson@example.com",
         avatar: "https://randomuser.me/api/portraits/women/1.jpg",
         isOnline: true,
     },
     {
         id: "2",
-        name: "Bob Smith",
+        username: "Bob Smith",
         email: "bob.smith@example.com",
         avatar: "https://randomuser.me/api/portraits/men/2.jpg",
         isOnline: false,
     },
     {
         id: "3",
-        name: "Carla Martinez",
+        username: "Carla Martinez",
         email: "carla.martinez@example.com",
         avatar: "https://randomuser.me/api/portraits/women/3.jpg",
         isOnline: true,
     },
     {
         id: "4",
-        name: "David Lee",
+        username: "David Lee",
         email: "david.lee@example.com",
         avatar: "https://randomuser.me/api/portraits/men/4.jpg",
         isOnline: false,
     },
     {
         id: "5",
-        name: "Evelyn Garcia",
+        username: "Evelyn Garcia",
         email: "evelyn.garcia@example.com",
         avatar: "https://randomuser.me/api/portraits/women/5.jpg",
         isOnline: true,

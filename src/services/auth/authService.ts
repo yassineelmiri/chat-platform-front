@@ -1,6 +1,7 @@
 import axios from 'axios';
 import axiosInstance from '../../utils/axiosInstance';
 import { delay } from '../../utils';
+import { User } from '../../types/user';
 
 interface LoginData {
   email: string;
@@ -13,10 +14,7 @@ export interface RegisterData extends LoginData {
 
 interface AuthResponse {
   token: string;
-  user?: {
-    id: string;
-    email: string;
-  };
+  user:User 
 }
 
 export const loginService = async (loginData: LoginData): Promise<AuthResponse> => {

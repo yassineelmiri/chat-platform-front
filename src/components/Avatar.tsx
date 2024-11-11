@@ -1,11 +1,13 @@
+import { useMemo } from "react";
+import { Member } from "../types/chat";
 
 interface AvatarProps {
-    user?: any;
+    user?: Member;
 };
 
 const Avatar: React.FC<AvatarProps> = ({ user }) => {
 
-    let isActive = true
+    let isActive = useMemo(() => user?.status, [user?.status])
 
     return (
         <div className="relative">
