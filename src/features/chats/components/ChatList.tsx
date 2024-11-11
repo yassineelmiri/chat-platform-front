@@ -1,10 +1,10 @@
 import { useState } from "react";
-import useChat from "../../../hooks/useChat";
 import GroupChatModal from "../../../components/GroupChatModal";
 import clsx from "clsx";
 import { MdOutlineGroupAdd } from 'react-icons/md';
 import ChatBox from "./ChatBox";
-import { useChats } from "../hooks/useFetchChats";
+import { useChats } from "../../../hooks/useChats";
+import useCurrentChat from "../../../hooks/useCurrentChat";
 
 
 interface ChatListProps {
@@ -16,15 +16,11 @@ const ChatList: React.FC<ChatListProps> = ({
 
   users
 }) => {
-  
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-
-
-  const { chatId, isOpen } = useChat();
-
-  const { data: chats, isLoading, error } = useChats();
+  const { data: chats, isLoading, error } = useChats();  // fetch chats form hook
+  const { chatId, isOpen } = useCurrentChat();  //get chatid 
 
   if (isLoading) return <div>Loading chats...</div>;
   if (error) return <div>Error: {error.message}</div>;

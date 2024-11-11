@@ -7,12 +7,13 @@ const EmptyState = () => {
         sm:px-6 
         lg:px-8 
         lg:py-6 
-        h-full 
+        h-screen 
         lg:flex 
         hidden
         justify-center 
         items-center 
         bg-gray-100
+        
       "
     >
       <div className="text-center items-center flex flex-col">

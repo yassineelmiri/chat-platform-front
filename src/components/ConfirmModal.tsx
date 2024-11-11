@@ -4,7 +4,7 @@ import { Dialog } from '@headlessui/react'
 import { FiAlertTriangle } from 'react-icons/fi'
 
 import { useNavigate } from 'react-router-dom';
-import useChat from '../hooks/useChat';
+import useChat from '../hooks/useCurrentChat';
 import Button from './Button';
 import Modal from './Modal';
 

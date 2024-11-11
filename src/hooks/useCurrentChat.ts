@@ -7,7 +7,7 @@ interface Params {
     chatId?: string;
 }
 
-const useChat = () => {
+const useCurrentChat = () => {
     const params = useParams<Params>();
 
 
@@ -28,4 +28,4 @@ const useChat = () => {
     }), [isOpen, chatId]);
 };
 
-export default useChat;
+export default useCurrentChat;
