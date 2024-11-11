@@ -2,30 +2,28 @@
 import { HiChevronLeft } from 'react-icons/hi'
 import { HiEllipsisHorizontal } from 'react-icons/hi2';
 import { useMemo, useState } from "react";
-import { Chat } from '../../../dummyData/chats';
-import { User } from '../../../dummyData/users';
+
 import useOtherUser from '../../../hooks/useOtherUser';
 import ProfileDrawer from '../../../components/ProfileDrawer';
 import { Link } from 'react-router-dom';
 import AvatarGroup from '../../../components/AvatarGroup';
 import Avatar from '../../../components/Avatar';
+import { Chat } from '../../../types/chat';
 
 
 
 interface HeaderProps {
-    chat: Chat & {
-        users: User[]
-    }
+    chat: Chat
 }
 
 const Header: React.FC<HeaderProps> = ({ chat }) => {
-    const otherUser = useOtherUser(chat);
+    const otherUser = useOtherUser(chat.members);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
 
     const statusText = useMemo(() => {
         if (chat.isGroup) {
-            return `${chat.users.length} members`;
+            return `${chat.members.length} members`;
         }
 
         return 'Active'
@@ -34,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ chat }) => {
     return (
         <>
             <ProfileDrawer
-                data={chat}
+                chat={chat}
                 isOpen={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
             />
@@ -68,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({ chat }) => {
                         <HiChevronLeft size={32} />
                     </Link>
                     {chat.isGroup ? (
-                        <AvatarGroup users={chat.users} />
+                        <AvatarGroup users={chat.members} />
                     ) : (
                         <Avatar user={otherUser} />
                     )}

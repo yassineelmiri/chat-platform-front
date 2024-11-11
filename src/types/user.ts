@@ -1,3 +1,5 @@
+import { StatusUser } from "./chat";
+
 export interface User {
     _id: string;
     username: string;
@@ -5,7 +7,7 @@ export interface User {
     email: string;
     password: string;
     role: "user";
-    status: "ONLINE" | "OFFLINE";
+    status: StatusUser;
     reputation: number;
     timestamp: string;
 

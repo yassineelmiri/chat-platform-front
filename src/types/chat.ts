@@ -32,3 +32,6 @@ export interface Chat {
 }
 
 export type ChatResponse = Chat[];
+
+
+

@@ -1,29 +1,25 @@
-import { useState } from "react";
-import GroupChatModal from "../../../components/GroupChatModal";
+import React from "react";
 import clsx from "clsx";
-import { MdOutlineGroupAdd } from 'react-icons/md';
+import GroupChatModal from "../../../components/GroupChatModal";
+import { MdOutlineGroupAdd } from "react-icons/md";
 import ChatBox from "./ChatBox";
-import { useChats } from "../../../hooks/useChats";
-import useCurrentChat from "../../../hooks/useCurrentChat";
-
+import useChatList from "../hooks/useChatList";
 
 interface ChatListProps {
   users: any[];
-  title?: string;
 }
 
-const ChatList: React.FC<ChatListProps> = ({
-
-  users
-}) => {
-
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { data: chats, isLoading, error } = useChats();  // fetch chats form hook
-  const { chatId, isOpen } = useCurrentChat();  //get chatid 
-
-  console.log(chats)
-
+const ChatList: React.FC<ChatListProps> = ({ users }) => {
+  const {
+    chats,
+    isLoading,
+    error,
+    chatId,
+    isOpen,
+    isModalOpen,
+    openModal,
+    closeModal,
+  } = useChatList({ users });
 
   if (isLoading) return <div>Loading chats...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -31,12 +27,10 @@ const ChatList: React.FC<ChatListProps> = ({
 
   return (
     <>
-      <GroupChatModal
-        users={users}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-      <aside className={clsx(`
+      <GroupChatModal users={users} isOpen={isModalOpen} onClose={closeModal} />
+      <aside
+        className={clsx(
+          `
         fixed 
         inset-y-0 
         pb-20
@@ -47,14 +41,15 @@ const ChatList: React.FC<ChatListProps> = ({
         overflow-y-auto 
         border-r 
         border-gray-200 
-      `, isOpen ? 'hidden' : 'block w-full left-0')}>
+      `,
+          isOpen ? "hidden" : "block w-full left-0"
+        )}
+      >
         <div className="px-5">
           <div className="flex justify-between mb-4 pt-4">
-            <div className="text-2xl font-bold text-neutral-800">
-              Messages
-            </div>
+            <div className="text-2xl font-bold text-neutral-800">Messages</div>
             <div
-              onClick={() => setIsModalOpen(true)}
+              onClick={openModal}
               className="
                 rounded-full 
                 p-2 
@@ -69,16 +64,12 @@ const ChatList: React.FC<ChatListProps> = ({
             </div>
           </div>
           {chats.map((item) => (
-            <ChatBox
-              key={item._id}
-              chat={item}
-              selected={chatId === item._id}
-            />
+            <ChatBox key={item._id} chat={item} selected={chatId === item._id} />
           ))}
         </div>
       </aside>
     </>
   );
-}
+};
 
 export default ChatList;

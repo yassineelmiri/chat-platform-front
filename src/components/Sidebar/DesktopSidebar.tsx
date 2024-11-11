@@ -1,52 +1,48 @@
 import DesktopItem from "./DesktopItem";
-
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Avatar from "../Avatar";
 import useRoutes from "../../hooks/useRoutes";
 import SettingsModal from "./SettingsModal";
 import { useAuth } from "../../providers/AuthProvider";
-import { useNavigate } from "react-router-dom";
 
+interface DesktopSidebarProps { }
 
-interface DesktopSidebarProps {
-
-}
-
-const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
-
-}) => {
+const DesktopSidebar: React.FC<DesktopSidebarProps> = () => {
     const routes = useRoutes();
     const [isOpen, setIsOpen] = useState(false);
-    const navigate = useNavigate();
+    const { user } = useAuth();
 
-
-    const { user: currentUser, logout } = useAuth()
-    console.log(currentUser)
-    if (!currentUser) {
-        // logout()
-        // navigate('/auth')
-        return null
-    }
+    // Memoize the currentUser data if user exists
+    const currentUser = useMemo(() => {
+        if (!user) return null;
+        return {
+            username: user.username,
+            avatar: user.avatar,
+            email: user.email,
+            status: user.status,
+            _id: user._id,
+        };
+    }, [user]);
 
     return (
         <>
             <SettingsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
             <div className="
-        hidden 
-        lg:fixed 
-        lg:inset-y-0 
-        lg:left-0 
-        lg:z-40 
-        lg:w-20 
-        xl:px-6
-        lg:overflow-y-auto 
-        lg:bg-white 
-        lg:border-r-[1px]
-        lg:pb-4
-        lg:flex
-        lg:flex-col
-        justify-between
-      ">
+                hidden 
+                lg:fixed 
+                lg:inset-y-0 
+                lg:left-0 
+                lg:z-40 
+                lg:w-20 
+                xl:px-6
+                lg:overflow-y-auto 
+                lg:bg-white 
+                lg:border-r-[1px]
+                lg:pb-4
+                lg:flex
+                lg:flex-col
+                justify-between
+            ">
                 <nav className="mt-4 flex flex-col justify-between">
                     <ul role="list" className="flex flex-col items-center space-y-1">
                         {routes.map((item) => (
@@ -66,7 +62,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
                         onClick={() => setIsOpen(true)}
                         className="cursor-pointer hover:opacity-75 transition"
                     >
-                        <Avatar user={currentUser} />
+                        {currentUser && <Avatar user={currentUser} />}
                     </div>
                 </nav>
             </div>

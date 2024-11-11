@@ -7,6 +7,8 @@ interface Params {
     chatId?: string;
 }
 
+
+// this hook for find which chat is selected right now from url 
 const useCurrentChat = () => {
     const params = useParams<Params>();
 

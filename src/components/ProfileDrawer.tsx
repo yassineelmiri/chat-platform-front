@@ -2,30 +2,28 @@
 import { Fragment, useMemo, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { IoClose, IoTrash } from 'react-icons/io5';
-import { Chat } from '../dummyData/chats';
 import useOtherUser from '../hooks/useOtherUser';
 import ConfirmModal from './ConfirmModal';
 import AvatarGroup from './AvatarGroup';
 import Avatar from './Avatar';
-import { User } from '../dummyData/users';
+
+import { Chat } from '../types/chat';
 
 
 
 interface ProfileDrawerProps {
     isOpen: boolean;
     onClose: () => void;
-    data: Chat & {
-        users: User[];
-    };
+    chat: Chat
 }
 
 const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
     isOpen,
     onClose,
-    data,
+    chat,
 }) => {
     const [confirmOpen, setConfirmOpen] = useState(false);
-    const otherUser = useOtherUser(data);
+    const otherUser = useOtherUser(chat.members);
 
 
     if (!otherUser) {
@@ -33,17 +31,17 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
     }
 
     const title = useMemo(() => {
-        return data.name || otherUser?.username;
-    }, [data.name, otherUser?.username]);
+        return chat.name || otherUser?.username;
+    }, [chat.name, otherUser?.username]);
 
 
     const statusText = useMemo(() => {
-        if (data.isGroup) {
-            return `${data.users.length} members`;
+        if (chat.isGroup) {
+            return `${chat.members.length} members`;
         }
 
         return 'Active'
-    }, [data]);
+    }, [chat]);
 
     return (
         <>
@@ -96,8 +94,8 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                                             <div className="relative mt-6 flex-1 px-4 sm:px-6">
                                                 <div className="flex flex-col items-center">
                                                     <div className="mb-2">
-                                                        {data.isGroup ? (
-                                                            <AvatarGroup users={data.users} />
+                                                        {chat.isGroup ? (
+                                                            <AvatarGroup users={chat.members} />
                                                         ) : (
                                                             <Avatar user={otherUser} />
                                                         )}
@@ -119,17 +117,17 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                                                     </div>
                                                     <div className="w-full pb-5 pt-5 sm:px-0 sm:pt-0">
                                                         <dl className="space-y-8 px-4 sm:space-y-6 sm:px-6">
-                                                            {data.isGroup && (
+                                                            {chat.isGroup && (
                                                                 <div>
                                                                     <dt className="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0">
                                                                         Emails
                                                                     </dt>
                                                                     <dd className="mt-1 text-sm text-gray-900 sm:col-span-2">
-                                                                        {data.users.map((user) => user.email).join(', ')}
+                                                                        {chat.members.map((user) => user.email).join(', ')}
                                                                     </dd>
                                                                 </div>
                                                             )}
-                                                            {!data.isGroup && (
+                                                            {!chat.isGroup && (
                                                                 <div>
                                                                     <dt className="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0">
                                                                         Email
@@ -139,7 +137,7 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                                                                     </dd>
                                                                 </div>
                                                             )}
-                                                            {!data.isGroup && (
+                                                            {!chat.isGroup && (
                                                                 <>
                                                                     <hr />
                                                                     <div>
