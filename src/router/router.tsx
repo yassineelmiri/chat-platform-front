@@ -1,21 +1,43 @@
-import { createBrowserRouter } from 'react-router-dom';
-import Home from '../pages/Home';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Auth from '../pages/Auth';
+import MainLayout from '../layouts/MainLayout';
 import ProtectedRoute from '../components/ProtectedRoute';
+import { users } from '../dummyData/users';
+import { conversations } from '../dummyData/chats';
+import ChatList from '../features/chats/components/ChatList';
 
 export const router = createBrowserRouter([
-
-    {
-        path: '/',
-        element: (
-            // wrapp page with ProtectedRoute if you want user should be authed
-            <ProtectedRoute>
-                <Home />
-            </ProtectedRoute>
-        ),
-    },
     {
         path: '/auth',
         element: <Auth />,
+    },
+    {
+        path: '/',
+        element: <ProtectedRoute />, // wrapp page with ProtectedRoute if you want user should be authed
+
+        children: [
+            {
+                element: <MainLayout />,
+                children: [
+                    {
+                        index: true,
+                        element: <Navigate to="/chat" replace />, // automaticly open  chat list
+                    },
+                    {
+                        path: 'chat/:chatId?',
+                        element: <ChatList
+                            users={users}
+                            title="Messages"
+                            initialItems={conversations}
+                        />,
+                    },
+
+                    {
+                        path: 'friends',
+                        element: <div>friends</div>,
+                    },
+                ],
+            },
+        ],
     },
 ]);
