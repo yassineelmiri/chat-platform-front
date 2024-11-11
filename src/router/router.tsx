@@ -4,7 +4,6 @@ import MainLayout from '../layouts/MainLayout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { users } from '../dummyData/users';
 import ChatList from '../features/chats/components/ChatList';
-import { chats } from '../dummyData/chats';
 
 export const router = createBrowserRouter([
     {
@@ -28,7 +27,7 @@ export const router = createBrowserRouter([
                         element: <ChatList
                             users={users}
                             title="Messages"
-                            initialItems={chats}
+
                         />,
                     },
 

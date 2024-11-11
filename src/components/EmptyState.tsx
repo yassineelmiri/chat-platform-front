@@ -1,6 +1,6 @@
 const EmptyState = () => {
-  return ( 
-    <div 
+  return (
+    <div
       className="
         px-4 
         py-10 
@@ -8,7 +8,8 @@ const EmptyState = () => {
         lg:px-8 
         lg:py-6 
         h-full 
-        flex 
+        lg:flex 
+        hidden
         justify-center 
         items-center 
         bg-gray-100
@@ -22,5 +23,5 @@ const EmptyState = () => {
     </div>
   );
 }
- 
+
 export default EmptyState;

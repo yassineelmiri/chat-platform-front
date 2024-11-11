@@ -2,14 +2,31 @@ import { useQuery } from '@tanstack/react-query';
 import useChat from '../../../hooks/useChat';
 import EmptyState from '../../../components/EmptyState';
 import { Chat, findOneChat } from '../../../dummyData/chats';
+import Header from './Header';
 
 const ChatBody = () => {
-    const { isOpen, chatId } = useChat();  // get chatid from hook usechat
+    const { isOpen, chatId } = useChat();
 
-    // if no chatId is provided, show the empty state
+    const { data: chat, error, isLoading } = useQuery<Chat>({
+        queryKey: ['chat', chatId],
+        queryFn: async () => {
+            if (!chatId) {
+                throw new Error('No valid conversation ID provided');
+            }
+            const result = await findOneChat(chatId);
+            if (!result) {
+                throw new Error('Chat not found');
+            }
+            return result;
+        },
+        // Disable the query when there's no chatId
+        enabled: !!chatId,
+    });
+
+    // Now we can safely return the empty state
     if (!chatId) {
         return (
-            <div className="lg:pl-80 h-full">
+            <div className="lg:pl-80 h-full w-full">
                 <div className="h-full flex flex-col">
                     <EmptyState />
                 </div>
@@ -17,29 +34,17 @@ const ChatBody = () => {
         );
     }
 
-    const { data: chat = [], error, isLoading } = useQuery<Chat, Error>({
-        queryKey: ['chat', chatId],
-        queryFn: () => findOneChat(chatId),
-    });
-
     if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    if (error) return <div>Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
+    if (!chat) return null;
 
-
-    // if (true) {
-    //     return <div className="flex-grow flex justify-center items-center">
-    //         <p>No messages yet. Send the first one!</p>
-    //     </div>
-    // }
     return (
-        <div className="lg:pl-80 h-full">
+        <div className="lg:pl-80 h-full w-full">
             <div className="h-full flex flex-col">
-
-                {/* If the chat has messages render them, else show a prompt to send a message */}
+                <Header chat={chat} />
                 <div className="flex flex-col flex-grow">
-                    {chat?.messages && chat.messages.length > 0 ? (
+                    {chat.messages && chat.messages.length > 0 ? (
                         <div className="flex-grow">
-
                             <ul>
                                 {chat.messages.map((message) => (
                                     <li key={message.id}>
@@ -55,7 +60,7 @@ const ChatBody = () => {
                         </div>
                     )}
                 </div>
-                {/* here i will add input add msg */}
+                {/* Input for adding messages will go here */}
             </div>
         </div>
     );

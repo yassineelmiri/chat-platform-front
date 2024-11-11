@@ -103,7 +103,7 @@ export function addMessageToChat(
 
 
 // Fetch one chat 
-export const findOneChat = async (chatId: string) => {
+export const findOneChat = (chatId: string) => {
 
   return chats.find(item => item.id === chatId)
 

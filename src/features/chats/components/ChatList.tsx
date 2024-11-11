@@ -4,26 +4,31 @@ import GroupChatModal from "../../../components/GroupChatModal";
 import clsx from "clsx";
 import { MdOutlineGroupAdd } from 'react-icons/md';
 import ChatBox from "./ChatBox";
+import { useChats } from "../hooks/useFetchChats";
 
 
 interface ChatListProps {
-  initialItems: any[];
   users: any[];
   title?: string;
 }
 
 const ChatList: React.FC<ChatListProps> = ({
-  initialItems,
+
   users
 }) => {
-  const [items, setItems] = useState(initialItems);
+  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
 
 
   const { chatId, isOpen } = useChat();
 
+  const { data: chats, isLoading, error } = useChats();
 
+  if (isLoading) return <div>Loading chats...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!chats?.length) return <div>No chats found</div>;
 
   return (
     <>
@@ -64,7 +69,7 @@ const ChatList: React.FC<ChatListProps> = ({
               <MdOutlineGroupAdd size={20} />
             </div>
           </div>
-          {items.map((item) => (
+          {chats.map((item) => (
             <ChatBox
               key={item.id}
               data={item}
