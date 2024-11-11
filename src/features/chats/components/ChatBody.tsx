@@ -25,6 +25,12 @@ const ChatBody = () => {
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
+
+    // if (true) {
+    //     return <div className="flex-grow flex justify-center items-center">
+    //         <p>No messages yet. Send the first one!</p>
+    //     </div>
+    // }
     return (
         <div className="lg:pl-80 h-full">
             <div className="h-full flex flex-col">
