@@ -1,4 +1,3 @@
-// components/Call/ParticipantGrid.tsx
 import React from 'react';
 import { Participant } from './Call';
 

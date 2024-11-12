@@ -20,9 +20,9 @@ const useCallState = (chatId: string | null) => {
     const [isCallInitiating, setIsCallInitiating] = useState(false);
 
     useEffect(() => {
-        const handleIncomingCall = (data: IncomingCall) => {
+        const handleIncomingCall = (data: IncomingCall) => { // here litsen on Incoming call
             console.log('Incoming call:', data);
-            if (activeCall) {
+            if (activeCall) { // if already in call dreject incom call automaticly
                 socket.emit('rejectCall', {
                     chatId: data.chatId,
                     callerId: data.callerId,
@@ -30,15 +30,19 @@ const useCallState = (chatId: string | null) => {
                 });
                 return;
             }
-            setIncomingCall(data);
+            setIncomingCall(data); // save data comes from backend 
         };
 
+
+
+        // all these func  excute with socket and get thier dat from socketio
+        // this if excute tell us that user we send call he is  accept call  
         const handleCallAccepted = (data: { userId: string; username: string }) => {
             console.log('Call accepted by:', data.username);
             setIsCallInitiating(false);
             toast.success(`${data.username} joined the call`);
         };
-
+        // this if excute tell us that user we send call he is reject call  
         const handleCallRejected = (data: { userId: string; username: string; reason?: string }) => {
             console.log('Call rejected by:', data.username);
             setIsCallInitiating(false);
@@ -46,12 +50,15 @@ const useCallState = (chatId: string | null) => {
             toast.error(`${data.username} ${data.reason === 'busy' ? 'is busy' : 'rejected the call'}`);
         };
 
+        // this if excute tell us that user  inside call chat he leave cll
         const handleCallEnded = (data: { userId: string; username: string }) => {
             console.log('Call ended by:', data.username);
             setActiveCall(null);
             toast.success(`${data.username} ended the call`);
         };
 
+
+        // this if excute tell us that user try to join call but he got error
         const handleCallError = (error: { message: string }) => {
             console.error('Call error:', error);
             setIsCallInitiating(false);
@@ -59,6 +66,8 @@ const useCallState = (chatId: string | null) => {
             toast.error(`Call error: ${error.message}`);
         };
 
+
+        // listeners socket io
         socket.on('incomingCall', handleIncomingCall);
         socket.on('callAccepted', handleCallAccepted);
         socket.on('callRejected', handleCallRejected);
@@ -74,21 +83,27 @@ const useCallState = (chatId: string | null) => {
         };
     }, [activeCall]);
 
+
+    // this func handle if you want start call chat weather audio or vidoe
     const handleStartCall = async (type: 'video' | 'audio') => {
         if (!chatId) return;
-        
+
         try {
+            // here we verify if user have media audi ,,,
             if (!navigator.mediaDevices?.getUserMedia) {
                 throw new Error('Your browser does not support video/audio calls');
             }
 
             setIsCallInitiating(true);
 
+            // get  permss from browseer to use camera and audio
             await navigator.mediaDevices.getUserMedia({
                 video: type === 'video',
                 audio: true,
             });
 
+
+            //send event to all users inside same chat
             socket.emit('initiateCall', { chatId, type });
             setActiveCall({ type, chatId });
             toast.success('Initiating call...');
@@ -99,15 +114,19 @@ const useCallState = (chatId: string | null) => {
         }
     };
 
+
+    // thi use to accept incoming calls
     const handleAcceptCall = async () => {
         if (!incomingCall) return;
 
         try {
+            // get  permss from browseer to use camera and audio
             await navigator.mediaDevices.getUserMedia({
                 video: incomingCall.type === 'video',
                 audio: true,
             });
 
+            // send event to socket tha we accept chat call
             socket.emit('acceptCall', {
                 chatId: incomingCall.chatId,
                 callerId: incomingCall.callerId,
@@ -131,6 +150,7 @@ const useCallState = (chatId: string | null) => {
         }
     };
 
+    // send event to socket that we end call
     const handleEndCall = () => {
         if (activeCall) {
             socket.emit('leaveCall', { chatId: activeCall.chatId });
@@ -139,6 +159,7 @@ const useCallState = (chatId: string | null) => {
         }
     };
 
+    // send event to socket that we reject call
     const handleRejectCall = () => {
         if (incomingCall) {
             socket.emit('rejectCall', {

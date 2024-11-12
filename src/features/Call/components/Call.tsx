@@ -8,10 +8,11 @@ import ConnectedUsers from './ConnectedUsers';
 
 interface CallProps {
     chatId: string;
-    type: 'video' | 'audio';
-    onClose: () => void;
+    type: 'video' | 'audio'; // Type of call (video or audio only)
+    onClose: () => void;   // Callback function when call ends
 }
 
+//  here i Define interface for call participants
 export interface Participant {
     userId: string;
     username: string;
@@ -20,9 +21,12 @@ export interface Participant {
     videoOff?: boolean;
 }
 
+// WebRTC configuration for peer connections
+//ICE Candidate  = Finding ways to connect <nta fi asfi and fi casa ntla9aw fi marrakch
+// we use STUN Server that mean I can send it through the post office if direct delivery doesn't work
 const configuration = {
     iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' }
+        { urls: 'stun:stun.l.google.com:19302' }  //  hada Google public STUN server 
     ],
 };
 
@@ -34,11 +38,16 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
     const localStreamRef = useRef<MediaStream | null>(null);
     const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
 
+    // this func to create new WebRTC peer connections
     const createPeerConnection = async (targetUserId: string) => {
         try {
+
+            // Create a new WebRTC connection
             const peerConnection = new RTCPeerConnection(configuration);
 
+            // here we check if we have our own video/audio stream
             if (localStreamRef.current) {
+                //if yes  add  all our tracks (video/audio) to the connection
                 localStreamRef.current.getTracks().forEach(track => {
                     if (localStreamRef.current) {
                         peerConnection.addTrack(track, localStreamRef.current);
@@ -46,8 +55,13 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 });
             }
 
+            //  When we find a way to connect (ICE candidate)
+            // Itis like saying
+            // hey I found a way we might be able to connect!
+            // Here is the address/method we can try
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
+                    // we seend this connection info to the other user
                     socket.emit('ice-candidate', {
                         chatId,
                         targetUserId,
@@ -56,8 +70,15 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 }
             };
 
+
+            // here when we receive video/audio tracks from the other user
             peerConnection.ontrack = (event) => {
+
+                // here we get their stream
                 const remoteStream = event.streams[0];
+
+
+                // update our list of participants with their stream
                 setParticipants(prev => {
                     const updated = new Map(prev);
                     const participant = updated.get(targetUserId);
@@ -71,12 +92,18 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 });
             };
 
+
+            // When connection state changes
             peerConnection.onconnectionstatechange = () => {
+
+                // If we are connected stop showing Load ui state "connecting"
                 if (peerConnection.connectionState === 'connected') {
                     setIsConnecting(false);
                 }
             };
 
+
+            // Save this connection in our list
             peerConnections.current.set(targetUserId, peerConnection);
             return peerConnection;
         } catch (error) {
@@ -85,9 +112,14 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
         }
     };
 
+
+    // this is a main useEffect hook for setting up media and socket listeners
     useEffect(() => {
+        // Initialize local media stream
         const initializeMedia = async () => {
+            // ... (gets user media and sets up local stream)
             try {
+
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: type === 'video',
                     audio: true,
@@ -115,6 +147,8 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
 
         initializeMedia();
 
+        //  this is asocket event listeners for handling WebRTC signaling
+        // handles new user joining
         socket.on('userJoinedCall', async ({ userId, username }) => {
             toast.success(`${username} joined the call`);
             setParticipants(prev => {
@@ -129,18 +163,28 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
             });
 
             try {
+                // here i create a new connection with another user
                 const peerConnection = await createPeerConnection(userId);
+                // Create an "offer" (like saying hey m i want to connect with you azin)
                 const offer = await peerConnection.createOffer();
+                // after that we save this offer in our own connection
                 await peerConnection.setLocalDescription(offer);
+
+                // and here we send this offer to the other user through socket
                 socket.emit('offer', { chatId, targetUserId: userId, offer });
             } catch (error) {
+
+                // if anything goes wrong, show an error message
                 console.error('Error creating offer:', error);
                 toast.error('Failed to connect with new participant');
             }
         });
 
+
+        //this handles incoming connection offers
         socket.on('offer', async ({ userId, offer }) => {
             try {
+
                 const peerConnection = await createPeerConnection(userId);
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
                 const answer = await peerConnection.createAnswer();
@@ -152,6 +196,8 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
             }
         });
 
+
+        //handles connection answers
         socket.on('answer', async ({ userId, answer }) => {
             try {
                 const peerConnection = peerConnections.current.get(userId);
@@ -164,6 +210,8 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
             }
         });
 
+
+        //handles ICE candidates
         socket.on('ice-candidate', async ({ userId, candidate }) => {
             try {
                 const peerConnection = peerConnections.current.get(userId);
@@ -175,6 +223,8 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
             }
         });
 
+
+        //handles user disconnection
         socket.on('userLeftCall', ({ userId, username }) => {
             const peerConnection = peerConnections.current.get(userId);
             if (peerConnection) {
@@ -226,7 +276,13 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
         };
     }, [chatId, type]);
 
+
+
+    // Handler functions for user interactions
     const handleToggleAudio = () => {
+
+
+        //toggles audio mute state
         const newMutedState = !isMuted;
         setIsMuted(newMutedState);
 
@@ -238,6 +294,8 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
     };
 
     const handleToggleVideo = () => {
+
+        //toggles video enabled state
         if (type === 'video') {
             const newVideoOffState = !isVideoOff;
             setIsVideoOff(newVideoOffState);
@@ -251,10 +309,14 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
     };
 
     const handleEndCall = () => {
+
+        //handles call termination
         socket.emit('leaveCall', { chatId });
         onClose();
     };
 
+
+    // here i  load state UI
     if (isConnecting) {
         return (
             <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center">
@@ -282,26 +344,24 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 </div>
 
                 <div className="mt-6 flex justify-around">
-                    <button 
+                    <button
                         onClick={handleToggleVideo}
-                        className={`flex flex-col items-center ${
-                            isVideoOff ? 'text-red-500' : 'text-blue-500'
-                        }`}
+                        className={`flex flex-col items-center ${isVideoOff ? 'text-red-500' : 'text-blue-500'
+                            }`}
                         disabled={type !== 'video'}
                     >
                         <FaVideo size={24} className="mb-1" />
                         <span className="text-xs">Camera</span>
                     </button>
-                    <button 
+                    <button
                         onClick={handleToggleAudio}
-                        className={`flex flex-col items-center ${
-                            isMuted ? 'text-red-500' : 'text-yellow-500'
-                        }`}
+                        className={`flex flex-col items-center ${isMuted ? 'text-red-500' : 'text-yellow-500'
+                            }`}
                     >
                         <FaMicrophoneSlash size={24} className="mb-1" />
                         <span className="text-xs">Mic</span>
                     </button>
-                    <button 
+                    <button
                         onClick={handleEndCall}
                         className="flex flex-col items-center text-red-500"
                     >
