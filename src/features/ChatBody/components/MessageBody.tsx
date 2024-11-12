@@ -2,7 +2,6 @@ import React, { useMemo, useRef, useEffect, useState } from "react";
 import MessageBox from "./MessageBox";
 import EmptyState from "../../../components/EmptyState";
 import useMessage from "../hooks/useMessage";
-import socket from '../../../utils/socket';
 import { useSocketConnection } from "../../../hooks/useSocket";
 
 const MessageBody: React.FC = () => {
@@ -17,7 +16,7 @@ const MessageBody: React.FC = () => {
 
     useEffect(() => {
         if (chatId) {
-            // Join the chat room when component mounts
+            //  here i notif if i join the chat  
             socket.emit('joinChat', chatId);
 
             // Listen for new messages
@@ -25,7 +24,7 @@ const MessageBody: React.FC = () => {
                 setMessages((prev) => prev ? [...prev, message] : [message]);
             });
 
-            // Cleanup when component unmounts
+            // cleanup when component unmounts
             return () => {
                 socket.emit('leaveChat', chatId);
                 socket.off('newMessage');
