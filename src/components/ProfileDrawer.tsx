@@ -26,9 +26,12 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
     const otherUser = useOtherUser(chat.members);
 
 
-    if (!otherUser) {
-        return <h2>no mambers</h2>
-    }
+    // <Avatar user={otherUser} />
+    console.log(otherUser)
+
+    // if (!otherUser) {
+    //     return <h2>no mambers</h2>
+    // }
 
     const title = useMemo(() => {
         return chat.name || otherUser?.username;

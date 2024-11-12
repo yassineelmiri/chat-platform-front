@@ -12,7 +12,7 @@ interface ChatBoxProps {
 
 const ChatBox: React.FC<ChatBoxProps> = ({ chat, selected }) => {
     const { handleClick, otherUser, lastMessageText, formattedDate } = useChatBox({ chat });
-
+    console.log(chat)
     return (
         <div
             onClick={handleClick}
@@ -38,7 +38,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chat, selected }) => {
                     <span className="absolute inset-0" aria-hidden="true" />
                     <div className="flex justify-between items-center mb-1">
                         <p className="text-md font-medium text-gray-900">
-                            {chat.isGroup ? chat.name : otherUser?.username}
+                            {chat.isGroup ? chat.name : otherUser?.username || "Deleted User"}
                         </p>
                         {formattedDate && (
                             <p className="text-xs text-gray-400 font-light">{formattedDate}</p>
