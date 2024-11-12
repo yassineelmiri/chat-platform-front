@@ -2,37 +2,40 @@ import React, { useMemo, useRef, useEffect, useState } from "react";
 import MessageBox from "./MessageBox";
 import EmptyState from "../../../components/EmptyState";
 import useMessage from "../hooks/useMessage";
-import socket from "../../../utils/socket"; // Import your socket instance
+import socket from '../../../utils/socket';
+import { useSocketConnection } from "../../../hooks/useSocket";
 
 const MessageBody: React.FC = () => {
     const { isOpen, chatId, messagesData, isLoading, error } = useMessage();
-    const [messages, setMessages] = useState(messagesData); // State to manage real-time messages
+    const [messages, setMessages] = useState(messagesData);
     const bottomRef = useRef<HTMLDivElement>(null);
+    const socket = useSocketConnection(chatId);
 
-    // Sync messagesData with local messages state whenever it updates
     useEffect(() => {
         setMessages(messagesData);
     }, [messagesData]);
 
-    // Setup socket listener for new messages
     useEffect(() => {
-        if (!chatId) return;
+        if (chatId) {
+            // Join the chat room when component mounts
+            socket.emit('joinChat', chatId);
 
-        // Join chat room with the current chatId
-        socket.emit("joinRoom", chatId);
+            // Listen for new messages
+            socket.on('newMessage', ({ message }) => {
+                setMessages((prev) => prev ? [...prev, message] : [message]);
+            });
 
-        // Listen for new messages from server
-        socket.on("newMessage", (newMessage) => {
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
-            bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-        });
-
-        // Cleanup on component unmount or chatId change
-        return () => {
-            socket.emit("leaveRoom", chatId);
-            socket.off("newMessage");
-        };
+            // Cleanup when component unmounts
+            return () => {
+                socket.emit('leaveChat', chatId);
+                socket.off('newMessage');
+            };
+        }
     }, [chatId]);
+
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     if (!chatId) return <EmptyState />;
     if (isLoading) return <div>Loading...</div>;
