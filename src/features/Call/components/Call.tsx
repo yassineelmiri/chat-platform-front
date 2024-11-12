@@ -1,6 +1,10 @@
+
 import React, { useEffect, useRef, useState } from 'react';
-import CallControls from './CallControls';
+import { FaVideo, FaMicrophoneSlash, FaPhoneSlash } from "react-icons/fa";
 import socket from '../../../utils/socket';
+import { toast } from 'react-hot-toast';
+import ParticipantGrid from './ParticipantGrid';
+import ConnectedUsers from './ConnectedUsers';
 
 interface CallProps {
     chatId: string;
@@ -8,7 +12,7 @@ interface CallProps {
     onClose: () => void;
 }
 
-interface Participant {
+export interface Participant {
     userId: string;
     username: string;
     stream?: MediaStream;
@@ -18,8 +22,7 @@ interface Participant {
 
 const configuration = {
     iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        // Add your TURN servers here if needed
+        { urls: 'stun:stun.l.google.com:19302' }
     ],
 };
 
@@ -27,6 +30,7 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
     const [participants, setParticipants] = useState<Map<string, Participant>>(new Map());
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
+    const [isConnecting, setIsConnecting] = useState(true);
     const localStreamRef = useRef<MediaStream | null>(null);
     const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
 
@@ -34,7 +38,6 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
         try {
             const peerConnection = new RTCPeerConnection(configuration);
 
-            // Add local tracks to the connection
             if (localStreamRef.current) {
                 localStreamRef.current.getTracks().forEach(track => {
                     if (localStreamRef.current) {
@@ -43,7 +46,6 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 });
             }
 
-            // Handle ICE candidates
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
                     socket.emit('ice-candidate', {
@@ -54,7 +56,6 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 }
             };
 
-            // Handle incoming tracks
             peerConnection.ontrack = (event) => {
                 const remoteStream = event.streams[0];
                 setParticipants(prev => {
@@ -68,6 +69,12 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                     }
                     return updated;
                 });
+            };
+
+            peerConnection.onconnectionstatechange = () => {
+                if (peerConnection.connectionState === 'connected') {
+                    setIsConnecting(false);
+                }
             };
 
             peerConnections.current.set(targetUserId, peerConnection);
@@ -98,17 +105,18 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 });
 
                 setParticipants(newParticipants);
+                setIsConnecting(false);
             } catch (error) {
                 console.error('Error accessing media devices:', error);
-                onClose(); // Close call on error
+                toast.error('Failed to access camera/microphone');
+                onClose();
             }
         };
 
         initializeMedia();
 
-        // Socket event listeners
         socket.on('userJoinedCall', async ({ userId, username }) => {
-            console.log('User joined:', userId, username);
+            toast.success(`${username} joined the call`);
             setParticipants(prev => {
                 const updated = new Map(prev);
                 updated.set(userId, {
@@ -120,7 +128,6 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 return updated;
             });
 
-            // Create peer connection and send offer
             try {
                 const peerConnection = await createPeerConnection(userId);
                 const offer = await peerConnection.createOffer();
@@ -128,6 +135,7 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 socket.emit('offer', { chatId, targetUserId: userId, offer });
             } catch (error) {
                 console.error('Error creating offer:', error);
+                toast.error('Failed to connect with new participant');
             }
         });
 
@@ -140,6 +148,7 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 socket.emit('answer', { chatId, targetUserId: userId, answer });
             } catch (error) {
                 console.error('Error handling offer:', error);
+                toast.error('Failed to connect with participant');
             }
         });
 
@@ -151,6 +160,7 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 }
             } catch (error) {
                 console.error('Error handling answer:', error);
+                toast.error('Connection failed');
             }
         });
 
@@ -165,20 +175,20 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
             }
         });
 
-        socket.on('userLeftCall', ({ userId }) => {
-            // Clean up peer connection
+        socket.on('userLeftCall', ({ userId, username }) => {
             const peerConnection = peerConnections.current.get(userId);
             if (peerConnection) {
                 peerConnection.close();
                 peerConnections.current.delete(userId);
             }
 
-            // Remove participant
             setParticipants(prev => {
                 const updated = new Map(prev);
                 updated.delete(userId);
                 return updated;
             });
+
+            toast.error(`${username} left the call`);
         });
 
         socket.on('participantToggleAudio', ({ userId, muted }) => {
@@ -204,7 +214,6 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
         });
 
         return () => {
-            // Cleanup
             localStreamRef.current?.getTracks().forEach(track => track.stop());
             peerConnections.current.forEach(connection => connection.close());
             socket.off('userJoinedCall');
@@ -241,67 +250,68 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
         }
     };
 
-    const renderParticipant = (participant: Participant) => {
-        const { userId, username, stream, muted, videoOff } = participant;
-        const isLocalUser = userId === socket.id || userId.startsWith('local-');
+    const handleEndCall = () => {
+        socket.emit('leaveCall', { chatId });
+        onClose();
+    };
 
+    if (isConnecting) {
         return (
-            <div key={userId} className="relative">
-                {type === 'video' ? (
-                    <>
-                        <video
-                            ref={el => {
-                                if (el) el.srcObject = stream || null;
-                            }}
-                            autoPlay
-                            playsInline
-                            muted={isLocalUser || muted}
-                            className={`w-full rounded-lg ${videoOff ? 'hidden' : ''}`}
-                        />
-                        {videoOff && (
-                            <div className="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center">
-                                <span className="text-white text-xl">{username}</span>
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <div className="w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center">
-                        <span className="text-white text-xl">{username}</span>
-                    </div>
-                )}
-                <div className="absolute bottom-2 left-2 flex items-center gap-2">
-                    <span className="bg-black bg-opacity-50 text-white px-2 py-1 rounded">
-                        {username}
-                    </span>
-                    {muted && (
-                        <span className="bg-red-500 bg-opacity-75 text-white px-2 py-1 rounded">
-                            🎤
-                        </span>
-                    )}
+            <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center">
+                <div className="text-white text-xl">
+                    Connecting to call...
                 </div>
             </div>
         );
-    };
+    }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex flex-col">
-            <div className="flex-1 p-4">
-                <div className={`grid gap-4 h-full ${participants.size > 1 ? 'grid-cols-2' : 'grid-cols-1'
-                    }`}>
-                    {Array.from(participants.values()).map(renderParticipant)}
+        <div className="fixed flex-wrap justify-around inset-0 flex items-start bg-black bg-opacity-70">
+            <div className="bg-white rounded-lg p-6 shadow-lg w-250 mt-6">
+                <div className="flex flex-col items-center">
+                    <ParticipantGrid
+                        participants={participants}
+                        type={type}
+                    />
+                    <h2 className="text-lg font-semibold mt-4">
+                        {Array.from(participants.values())
+                            .map(p => p.username)
+                            .join(', ')}
+                    </h2>
+                    <span className="text-gray-500">In Call</span>
+                </div>
+
+                <div className="mt-6 flex justify-around">
+                    <button 
+                        onClick={handleToggleVideo}
+                        className={`flex flex-col items-center ${
+                            isVideoOff ? 'text-red-500' : 'text-blue-500'
+                        }`}
+                        disabled={type !== 'video'}
+                    >
+                        <FaVideo size={24} className="mb-1" />
+                        <span className="text-xs">Camera</span>
+                    </button>
+                    <button 
+                        onClick={handleToggleAudio}
+                        className={`flex flex-col items-center ${
+                            isMuted ? 'text-red-500' : 'text-yellow-500'
+                        }`}
+                    >
+                        <FaMicrophoneSlash size={24} className="mb-1" />
+                        <span className="text-xs">Mic</span>
+                    </button>
+                    <button 
+                        onClick={handleEndCall}
+                        className="flex flex-col items-center text-red-500"
+                    >
+                        <FaPhoneSlash size={24} className="mb-1" />
+                        <span className="text-xs">End Call</span>
+                    </button>
                 </div>
             </div>
 
-            <div className="p-4">
-                <CallControls
-                    isVideo={type === 'video'}
-                    isMuted={isMuted}
-                    isVideoOff={isVideoOff}
-                    onToggleAudio={handleToggleAudio}
-                    onToggleVideo={handleToggleVideo}
-                    onEndCall={onClose}
-                />
-            </div>
+            <ConnectedUsers participants={participants} />
         </div>
     );
 };

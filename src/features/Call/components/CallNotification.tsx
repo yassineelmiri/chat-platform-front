@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaPhone, FaVideo, FaTimes } from 'react-icons/fa';
+import { FaPhone, FaPhoneSlash, FaVideo } from 'react-icons/fa';
 
 interface CallNotificationProps {
     callerName: string;
@@ -15,23 +15,37 @@ const CallNotification: React.FC<CallNotificationProps> = ({
     onReject
 }) => {
     return (
-        <div className="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg">
-            <div className="flex items-center gap-2 mb-4">
-                {callType === 'video' ? <FaVideo /> : <FaPhone />}
-                <p>Incoming {callType} call from {callerName}</p>
+        <div className="fixed top-4 right-4 bg-white rounded-lg shadow-lg p-4 w-80 animate-slide-in">
+            <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                    {callType === 'video' ? (
+                        <FaVideo className="text-blue-500 text-xl" />
+                    ) : (
+                        <FaPhone className="text-blue-500 text-xl" />
+                    )}
+                </div>
+                <div>
+                    <h3 className="font-semibold">{callerName}</h3>
+                    <p className="text-sm text-gray-500">
+                        Incoming {callType} call...
+                    </p>
+                </div>
             </div>
-            <div className="flex gap-4">
-                <button
-                    onClick={onAccept}
-                    className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                >
-                    <FaPhone /> Accept
-                </button>
+            
+            <div className="flex justify-end gap-4">
                 <button
                     onClick={onReject}
-                    className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    className="flex items-center gap-2 px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition-colors"
                 >
-                    <FaTimes /> Reject
+                    <FaPhoneSlash />
+                    <span>Reject</span>
+                </button>
+                <button
+                    onClick={onAccept}
+                    className="flex items-center gap-2 px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition-colors"
+                >
+                    <FaPhone />
+                    <span>Accept</span>
                 </button>
             </div>
         </div>

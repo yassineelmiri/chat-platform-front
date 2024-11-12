@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash, FaPhone } from 'react-icons/fa';
+import { FaVideo, FaVideoSlash, FaMicrophone, FaMicrophoneSlash, FaPhoneSlash } from "react-icons/fa";
 
 interface CallControlsProps {
     isVideo: boolean;
@@ -19,32 +20,53 @@ const CallControls: React.FC<CallControlsProps> = ({
     onEndCall
 }) => {
     return (
-        <div className="flex items-center justify-center gap-4 p-4 bg-gray-800 rounded-lg">
-            <button
-                onClick={onToggleAudio}
-                className={`p-3 rounded-full transition-colors ${
-                    isMuted ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-600 hover:bg-gray-700'
-                }`}
-            >
-                {isMuted ? <FaMicrophoneSlash /> : <FaMicrophone />}
-            </button>
-
+        <div className="flex justify-center items-center gap-8 bg-white p-4 rounded-lg shadow-lg">
             {isVideo && (
                 <button
                     onClick={onToggleVideo}
-                    className={`p-3 rounded-full transition-colors ${
-                        isVideoOff ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-600 hover:bg-gray-700'
-                    }`}
+                    className={`flex flex-col items-center transition-colors ${
+                        isVideoOff ? 'text-red-500' : 'text-blue-500'
+                    } hover:opacity-80`}
                 >
-                    {isVideoOff ? <FaVideoSlash /> : <FaVideo />}
+                    {isVideoOff ? (
+                        <>
+                            <FaVideoSlash size={24} className="mb-1" />
+                            <span className="text-xs">Turn On Camera</span>
+                        </>
+                    ) : (
+                        <>
+                            <FaVideo size={24} className="mb-1" />
+                            <span className="text-xs">Turn Off Camera</span>
+                        </>
+                    )}
                 </button>
             )}
 
             <button
-                onClick={onEndCall}
-                className="p-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors"
+                onClick={onToggleAudio}
+                className={`flex flex-col items-center transition-colors ${
+                    isMuted ? 'text-red-500' : 'text-blue-500'
+                } hover:opacity-80`}
             >
-                <FaPhone className="transform rotate-135" />
+                {isMuted ? (
+                    <>
+                        <FaMicrophoneSlash size={24} className="mb-1" />
+                        <span className="text-xs">Unmute</span>
+                    </>
+                ) : (
+                    <>
+                        <FaMicrophone size={24} className="mb-1" />
+                        <span className="text-xs">Mute</span>
+                    </>
+                )}
+            </button>
+
+            <button
+                onClick={onEndCall}
+                className="flex flex-col items-center text-red-500 hover:opacity-80 transition-colors"
+            >
+                <FaPhoneSlash size={24} className="mb-1" />
+                <span className="text-xs">End Call</span>
             </button>
         </div>
     );

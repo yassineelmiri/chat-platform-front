@@ -20,13 +20,13 @@ export const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        element: <Navigate to="/chat" replace />, // automaticly open  chat list
+                        element: <Navigate to="/chat" />, // automaticly open  chat list
                     },
                     {
                         path: 'chat/:chatId?',
                         element: <ChatList
                             users={users}
-                            title="Messages"
+
 
                         />,
                     },
