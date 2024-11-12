@@ -9,7 +9,7 @@ export const useSocketConnection = (chatId: string) => {
 
 
     const { token } = useAuth()
-    
+
     useEffect(() => {
         // Connect with authentication
         socket.auth = { token }
@@ -27,11 +27,12 @@ export const useSocketConnection = (chatId: string) => {
         // Handle user status updates
         socket.on('userConnected', (data) => {
             queryClient.invalidateQueries({ queryKey: ['chat-members', chatId] });
+            queryClient.invalidateQueries({ queryKey: ['chats', chatId] });
             console.log(`User ${data.username} is now online`);
         });
 
         socket.on('userDisconnected', (data) => {
-            queryClient.invalidateQueries({ queryKey: ['chat-members', chatId] });
+            queryClient.invalidateQueries({ queryKey: ['chat', chatId] });
             console.log(`User ${data.username} is now offline`);
         });
 

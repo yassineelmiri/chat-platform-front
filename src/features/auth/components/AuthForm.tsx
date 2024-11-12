@@ -56,7 +56,7 @@ const AuthForm = () => {
                 const response = await registerService(registerData);
                 console.log(response);
 
-                navigate('/auth');
+                setVariant("LOGIN")
             }
         } catch (error: any) {
             console.error(error.message || 'Authentication failed');
