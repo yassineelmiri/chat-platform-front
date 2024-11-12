@@ -1,53 +1,54 @@
-import React, { useMemo, useRef } from "react";
-
+import React, { useMemo, useRef, useEffect, useState } from "react";
 import MessageBox from "./MessageBox";
 import EmptyState from "../../../components/EmptyState";
 import useMessage from "../hooks/useMessage";
-interface MessageBodyProps {
+import socket from "../../../utils/socket"; // Import your socket instance
 
-}
-const MessageBody: React.FC<MessageBodyProps> = () => {
+const MessageBody: React.FC = () => {
+    const { isOpen, chatId, messagesData, isLoading, error } = useMessage();
+    const [messages, setMessages] = useState(messagesData); // State to manage real-time messages
+    const bottomRef = useRef<HTMLDivElement>(null);
 
+    // Sync messagesData with local messages state whenever it updates
+    useEffect(() => {
+        setMessages(messagesData);
+    }, [messagesData]);
 
-    const { isOpen, chatId, messagesData, isLoading, error } = useMessage(); // fetch list of messages belong this chat
-    const messages = useMemo(() => messagesData, [messagesData, chatId]); // cache messages
-    const bottomRef = useRef<HTMLDivElement>(null)
+    // Setup socket listener for new messages
+    useEffect(() => {
+        if (!chatId) return;
 
-    if (!chatId) {
-        return (
-            <div className="lg:pl-80 max-h-full w-full overflow-y-auto">
-                <div className="flex flex-col h-full">
-                    <EmptyState />
-                </div>
-            </div>
-        );
-    }
+        // Join chat room with the current chatId
+        socket.emit("joinRoom", chatId);
 
+        // Listen for new messages from server
+        socket.on("newMessage", (newMessage) => {
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+            bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        });
 
+        // Cleanup on component unmount or chatId change
+        return () => {
+            socket.emit("leaveRoom", chatId);
+            socket.off("newMessage");
+        };
+    }, [chatId]);
 
+    if (!chatId) return <EmptyState />;
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error instanceof Error ? error.message : "Unknown error"}</div>;
-    if (!messagesData) return null;
-
-
-
-
-
-
+    if (!messages) return null;
 
     return (
         <div className="flex flex-col overflow-y-auto max-h-[70%]">
-            {messages && messages?.length >= 0 ? messages.map((message, i) => (
+            {messages.length ? messages.map((message, i) => (
                 <MessageBox
                     isLast={i === messages.length - 1}
                     key={message._id}
                     data={message}
                 />
-            )) : <div className="flex-grow flex justify-center items-center">
-                <p>No messages yet. Send the first one!</p>
-            </div>
-            }
-            <div className="pt-24" ref={bottomRef} />
+            )) : <p className="flex justify-center items-center">No messages yet. Send the first one!</p>}
+            <div ref={bottomRef} />
         </div>
     );
 };

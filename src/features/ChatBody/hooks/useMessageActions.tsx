@@ -21,7 +21,7 @@ const useMessageActions = () => {
     const sendMsgMutation = useMutation({
         mutationFn: (content: string) => sendMessage({ chatId, content }),
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ['chat-messages'] });
+            queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
         },
         onError: (error: Error) => {
             toast.error(error.message);
