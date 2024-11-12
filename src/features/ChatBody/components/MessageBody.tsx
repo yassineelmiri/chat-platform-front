@@ -1,15 +1,40 @@
-import React, { useMemo, useRef, useEffect } from "react";
+import React, { useMemo, useRef, useEffect, useState } from "react";
 import MessageBox from "./MessageBox";
 import EmptyState from "../../../components/EmptyState";
 import useMessage from "../hooks/useMessage";
 import useMessageSocket from "../hooks/useMessageSocket";
 import TypingIndicator from "../../../components/TypingIndicator";
 
+
+import { useSocketConnection } from "../../../hooks/useSocket";
+
 const MessageBody: React.FC = () => {
     const { isOpen, chatId, messagesData, isLoading, error } = useMessage();
-    const { isConnected, typingUsers } = useMessageSocket(chatId);
-    const messages = useMemo(() => messagesData, [messagesData, chatId]);
+    const [messages, setMessages] = useState(messagesData);
     const bottomRef = useRef<HTMLDivElement>(null);
+    const socket = useSocketConnection(chatId);
+
+    useEffect(() => {
+        setMessages(messagesData);
+    }, [messagesData]);
+
+    useEffect(() => {
+        if (chatId) {
+            // Join the chat room when component mounts
+            socket.emit('joinChat', chatId);
+
+            // Listen for new messages
+            socket.on('newMessage', ({ message }) => {
+                setMessages((prev) => prev ? [...prev, message] : [message]);
+            });
+
+            // Cleanup when component unmounts
+            return () => {
+                socket.emit('leaveChat', chatId);
+                socket.off('newMessage');
+            };
+        }
+    }, [chatId]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

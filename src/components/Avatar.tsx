@@ -1,13 +1,12 @@
 import { useMemo } from "react";
-import { Member } from "../types/chat";
+import { Member, StatusUser } from "../types/chat";
 
 interface AvatarProps {
     user?: Member;
 };
 
 const Avatar: React.FC<AvatarProps> = ({ user }) => {
-
-    let isActive = useMemo(() => user?.status, [user?.status])
+    console.log(user)
 
     return (
         <div className="relative">
@@ -27,7 +26,7 @@ const Avatar: React.FC<AvatarProps> = ({ user }) => {
                     alt="Avatar"
                 />
             </div>
-            {isActive ? (
+            {user?.status === StatusUser.ONLINE ? (
                 <span
                     className="
             absolute 

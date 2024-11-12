@@ -1,4 +1,4 @@
-import { Member } from "../types/chat";
+import { Member, StatusUser } from "../types/chat";
 
 interface AvatarGroupProps {
     users?: Member[];
@@ -34,6 +34,24 @@ const AvatarGroup: React.FC<AvatarGroupProps> = ({
                         src={user?.avatar || '/images/placeholder.jpg'}
                         alt="Avatar"
                     />
+                    {user.status === StatusUser.ONLINE ? (
+                        <span
+                            className="
+            absolute 
+            block 
+            rounded-full 
+            bg-green-500 
+            ring-2 
+            ring-white 
+            top-0 
+            right-0
+            h-2 
+            w-2 
+            md:h-3 
+            md:w-3
+          "
+                        />
+                    ) : null}
                 </div>
             ))}
         </div>

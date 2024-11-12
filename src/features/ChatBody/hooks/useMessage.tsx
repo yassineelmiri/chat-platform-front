@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import useCurrentChat from "../../../hooks/useCurrentChat";
 import axiosInstance from "../../../utils/axiosInstance";
 import { MessageResponse } from "../../../types/message";
