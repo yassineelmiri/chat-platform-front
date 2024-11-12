@@ -5,6 +5,8 @@ import socket from '../../../utils/socket';
 import { toast } from 'react-hot-toast';
 import ParticipantGrid from './ParticipantGrid';
 import ConnectedUsers from './ConnectedUsers';
+import { useCallModalStore } from '../store/CallModalStore';
+import Modal from '../../../components/Modal';
 
 interface CallProps {
     chatId: string;
@@ -31,6 +33,9 @@ const configuration = {
 };
 
 const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
+
+    const { closeModal, isModalOpen } = useCallModalStore()
+
     const [participants, setParticipants] = useState<Map<string, Participant>>(new Map());
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
@@ -327,52 +332,58 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
         );
     }
 
+
+
+
     return (
-        <div className="fixed flex-wrap justify-around inset-0 flex items-start bg-black bg-opacity-70">
-            <div className="bg-white rounded-lg p-6 shadow-lg w-250 mt-6">
-                <div className="flex flex-col items-center">
-                    <ParticipantGrid
-                        participants={participants}
-                        type={type}
-                    />
-                    <h2 className="text-lg font-semibold mt-4">
-                        {Array.from(participants.values())
-                            .map(p => p.username)
-                            .join(', ')}
-                    </h2>
-                    <span className="text-gray-500">In Call</span>
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+
+            <div className="fixed flex-wrap justify-around inset-0 flex items-start bg-black bg-opacity-70">
+                <div className="bg-white rounded-lg p-6 shadow-lg w-250 mt-6">
+                    <div className="flex flex-col items-center">
+                        <ParticipantGrid
+                            participants={participants}
+                            type={type}
+                        />
+                        <h2 className="text-lg font-semibold mt-4">
+                            {Array.from(participants.values())
+                                .map(p => p.username)
+                                .join(', ')}
+                        </h2>
+                        <span className="text-gray-500">In Call</span>
+                    </div>
+
+                    <div className="mt-6 flex justify-around">
+                        <button
+                            onClick={handleToggleVideo}
+                            className={`flex flex-col items-center ${isVideoOff ? 'text-red-500' : 'text-blue-500'
+                                }`}
+                            disabled={type !== 'video'}
+                        >
+                            <FaVideo size={24} className="mb-1" />
+                            <span className="text-xs">Camera</span>
+                        </button>
+                        <button
+                            onClick={handleToggleAudio}
+                            className={`flex flex-col items-center ${isMuted ? 'text-red-500' : 'text-yellow-500'
+                                }`}
+                        >
+                            <FaMicrophoneSlash size={24} className="mb-1" />
+                            <span className="text-xs">Mic</span>
+                        </button>
+                        <button
+                            onClick={handleEndCall}
+                            className="flex flex-col items-center text-red-500"
+                        >
+                            <FaPhoneSlash size={24} className="mb-1" />
+                            <span className="text-xs">End Call</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div className="mt-6 flex justify-around">
-                    <button
-                        onClick={handleToggleVideo}
-                        className={`flex flex-col items-center ${isVideoOff ? 'text-red-500' : 'text-blue-500'
-                            }`}
-                        disabled={type !== 'video'}
-                    >
-                        <FaVideo size={24} className="mb-1" />
-                        <span className="text-xs">Camera</span>
-                    </button>
-                    <button
-                        onClick={handleToggleAudio}
-                        className={`flex flex-col items-center ${isMuted ? 'text-red-500' : 'text-yellow-500'
-                            }`}
-                    >
-                        <FaMicrophoneSlash size={24} className="mb-1" />
-                        <span className="text-xs">Mic</span>
-                    </button>
-                    <button
-                        onClick={handleEndCall}
-                        className="flex flex-col items-center text-red-500"
-                    >
-                        <FaPhoneSlash size={24} className="mb-1" />
-                        <span className="text-xs">End Call</span>
-                    </button>
-                </div>
+                <ConnectedUsers participants={participants} />
             </div>
-
-            <ConnectedUsers participants={participants} />
-        </div>
+        </Modal>
     );
 };
 

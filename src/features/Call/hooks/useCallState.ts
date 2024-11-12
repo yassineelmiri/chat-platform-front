@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import socket from '../../../utils/socket';
+import { useCallModalStore } from '../store/CallModalStore';
 
 interface ActiveCall {
     type: 'video' | 'audio';
@@ -18,7 +19,7 @@ const useCallState = (chatId: string | null) => {
     const [activeCall, setActiveCall] = useState<ActiveCall | null>(null);
     const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
     const [isCallInitiating, setIsCallInitiating] = useState(false);
-
+    const { closeModal, openModal } = useCallModalStore()
     useEffect(() => {
         const handleIncomingCall = (data: IncomingCall) => { // here litsen on Incoming call
             console.log('Incoming call:', data);
@@ -47,6 +48,7 @@ const useCallState = (chatId: string | null) => {
             console.log('Call rejected by:', data.username);
             setIsCallInitiating(false);
             setActiveCall(null);
+            closeModal()
             toast.error(`${data.username} ${data.reason === 'busy' ? 'is busy' : 'rejected the call'}`);
         };
 
@@ -54,6 +56,7 @@ const useCallState = (chatId: string | null) => {
         const handleCallEnded = (data: { userId: string; username: string }) => {
             console.log('Call ended by:', data.username);
             setActiveCall(null);
+            closeModal()
             toast.success(`${data.username} ended the call`);
         };
 
@@ -63,6 +66,7 @@ const useCallState = (chatId: string | null) => {
             console.error('Call error:', error);
             setIsCallInitiating(false);
             setActiveCall(null);
+            closeModal()
             toast.error(`Call error: ${error.message}`);
         };
 
@@ -106,6 +110,7 @@ const useCallState = (chatId: string | null) => {
             //send event to all users inside same chat
             socket.emit('initiateCall', { chatId, type });
             setActiveCall({ type, chatId });
+            openModal()
             toast.success('Initiating call...');
         } catch (error) {
             console.error('Error starting call:', error);
@@ -136,6 +141,7 @@ const useCallState = (chatId: string | null) => {
                 type: incomingCall.type,
                 chatId: incomingCall.chatId
             });
+            openModal()
             setIncomingCall(null);
         } catch (error) {
             console.error('Error accepting call:', error);
@@ -155,6 +161,7 @@ const useCallState = (chatId: string | null) => {
         if (activeCall) {
             socket.emit('leaveCall', { chatId: activeCall.chatId });
             setActiveCall(null);
+            closeModal()
             toast.success('Call ended');
         }
     };

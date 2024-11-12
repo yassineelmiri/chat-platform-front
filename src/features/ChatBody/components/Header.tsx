@@ -2,7 +2,6 @@
 import { HiChevronLeft } from 'react-icons/hi'
 import { HiEllipsisHorizontal } from 'react-icons/hi2';
 import { useMemo, useState } from "react";
-
 import useOtherUser from '../../../hooks/useOtherUser';
 import ProfileDrawer from '../../../components/ProfileDrawer';
 import { Link } from 'react-router-dom';
@@ -11,7 +10,6 @@ import Avatar from '../../../components/Avatar';
 import { Chat } from '../../../types/chat';
 import { FaPhone, FaSearch, FaVideo } from 'react-icons/fa';
 import useCallState from '../../Call/hooks/useCallState';
-import CallControls from '../../Call/components/CallControls';
 import CallNotification from '../../Call/components/CallNotification';
 import toast from 'react-hot-toast';
 import Call from '../../Call/components/Call';
@@ -54,13 +52,13 @@ const Header: React.FC<HeaderProps> = ({ chat }) => {
                 isOpen={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
             />
-          {activeCall && (
-                    <Call
-                        chatId={activeCall.chatId}
-                        type={activeCall.type}
-                        onClose={handleEndCall}
-                    />
-                )}
+            {activeCall && (
+                <Call
+                    chatId={activeCall.chatId}
+                    type={activeCall.type}
+                    onClose={handleEndCall}
+                />
+            )}
 
             {incomingCall && (
                 <CallNotification
