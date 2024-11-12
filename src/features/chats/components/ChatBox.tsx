@@ -12,7 +12,6 @@ interface ChatBoxProps {
 
 const ChatBox: React.FC<ChatBoxProps> = ({ chat, selected }) => {
     const { handleClick, otherUser, lastMessageText, formattedDate } = useChatBox({ chat });
-    console.log(chat)
     return (
         <div
             onClick={handleClick}

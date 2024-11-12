@@ -1,4 +1,4 @@
-import { Chat, Member } from "./chat";
+import { Member } from "./chat";
 
 export type Message = {
     _id: string;
@@ -13,7 +13,4 @@ export type Message = {
 };
 
 
-export type ChatData = {
-    chat: Chat;
-    messages: Message[];
-};
+export type MessageResponse =  Message[];

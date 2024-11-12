@@ -23,7 +23,7 @@ const useCurrentChat = () => {
     }, [params.chatId]);
 
     const isOpen = useMemo(() => !!chatId, [chatId]);
-    console.log(chatId)
+
     return useMemo(() => ({
         isOpen,
         chatId
