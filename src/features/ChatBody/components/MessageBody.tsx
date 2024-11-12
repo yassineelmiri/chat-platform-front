@@ -15,7 +15,7 @@ const MessageBody: React.FC<MessageBodyProps> = () => {
 
     if (!chatId) {
         return (
-            <div className="lg:pl-80 h-full w-full">
+            <div className="lg:pl-80 max-h-full w-full overflow-y-auto">
                 <div className="flex flex-col h-full">
                     <EmptyState />
                 </div>
@@ -35,10 +35,8 @@ const MessageBody: React.FC<MessageBodyProps> = () => {
 
 
 
-
-
     return (
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-col overflow-y-auto max-h-[70%]">
             {messages && messages?.length >= 0 ? messages.map((message, i) => (
                 <MessageBox
                     isLast={i === messages.length - 1}

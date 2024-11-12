@@ -5,10 +5,14 @@ import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import axios from 'axios';
 import useCurrentChat from '../../../hooks/useCurrentChat';
 import MessageInput from './MessageInput';
+import useMessageActions from '../hooks/useMessageActions';
+import { FiLoader } from 'react-icons/fi';
 
 
 const MessageForm = () => {
-    const { chatId } = useCurrentChat();
+
+
+    const { isOpen, chatId, loadingSending, errorSending, sendMsgMutation } = useMessageActions(); // fetch list of messages belong this chat
 
     const {
         register,
@@ -23,18 +27,12 @@ const MessageForm = () => {
 
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
         setValue('message', '', { shouldValidate: true });
-        axios.post('/api/messages', {
-            ...data,
-            conversationId: chatId,
-        });
+
+        sendMsgMutation(data.message)
+
     };
 
-    const handleUpload = (result: any) => {
-        axios.post('/api/messages', {
-            image: result.info.secure_url,
-            conversationId: chatId,
-        });
-    };
+
 
     return (
         <div
@@ -65,6 +63,7 @@ const MessageForm = () => {
                     placeholder='Write a message'
                 />
                 <button
+                    disabled={loadingSending}
                     type='submit'
                     className='
             rounded-full 
@@ -75,7 +74,8 @@ const MessageForm = () => {
             transition
           '
                 >
-                    <HiPaperAirplane size={18} className='text-white' />
+                    {loadingSending ? <FiLoader className='animate-spin' /> : <HiPaperAirplane size={18} className='text-white' />}
+
                 </button>
             </form>
         </div>

@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar/Sidebar";
 import ChatBody from "../features/ChatBody/components/ChatBody";
+import { Toaster } from "react-hot-toast";
 
 const MainLayout = () => {
     return (
@@ -15,7 +16,10 @@ const MainLayout = () => {
 
             <ChatBody />
 
-
+            <Toaster
+                position="top-center"
+                reverseOrder={false}
+            />
         </div>
     );
 };
