@@ -1,5 +1,4 @@
-import React from 'react';
-import { FaPhone, FaVideo, FaTimes } from 'react-icons/fa';
+import { FaPhone, FaVideo } from "react-icons/fa";
 
 interface CallNotificationProps {
     callerName: string;
@@ -25,7 +24,7 @@ const CallNotification: React.FC<CallNotificationProps> = ({
                 </div>
                 <div>
                     <h3 className="font-semibold text-gray-800">Incoming {callType} call</h3>
-                    <p className="text-sm text-gray-600">{callerName}</p>
+                    <p className="text-sm text-gray-600">from {callerName}</p>
                 </div>
             </div>
             <div className="flex justify-end gap-2">
@@ -45,5 +44,4 @@ const CallNotification: React.FC<CallNotificationProps> = ({
         </div>
     );
 };
-
 export default CallNotification;

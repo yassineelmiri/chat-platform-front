@@ -93,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({ chat }) => {
 
 
                     <button
-                        onClick={() => initiateCall(chatId, 'video')}
+                        onClick={() => initiateCall(chatId, 'audio')}
                         disabled={isCallInitiating || !!activeCall}
                         className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${isCallInitiating || activeCall
                             ? 'bg-gray-400 cursor-not-allowed'

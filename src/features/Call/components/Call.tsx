@@ -32,6 +32,9 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
     const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
     const callContainerRef = useRef<HTMLDivElement>(null);
 
+
+
+
     // WebRTC configuration
     const configuration: RTCConfiguration = {
         iceServers: [
@@ -66,7 +69,7 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 }
             };
 
-            // Handle incoming tisCallInitiatingracks
+            // Handle incoming tracks
             peerConnection.ontrack = (event) => {
                 setParticipants(prev => {
                     const updated = new Map(prev);
@@ -108,6 +111,9 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                 localStreamRef.current = stream;
                 const localUserId = socket.id;
 
+
+
+                console.log('get call')
                 setParticipants(new Map([
                     [localUserId, {
                         userId: localUserId,
@@ -117,6 +123,8 @@ const Call: React.FC<CallProps> = ({ chatId, type, onClose }) => {
                         videoOff: false,
                     }],
                 ]));
+
+
 
                 // Socket event listeners
                 socket.on('userJoinedCall', async ({ userId, username }) => {
