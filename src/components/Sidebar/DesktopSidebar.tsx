@@ -24,6 +24,12 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = () => {
         };
     }, [user]);
 
+
+
+
+    // add connection with socktion 
+    // const { socket } = useSocket(); use this pre conf of sockt io
+
     return (
         <>
             <SettingsModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
@@ -58,6 +64,8 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = () => {
                     </ul>
                 </nav>
                 <nav className="mt-4 flex flex-col justify-between items-center">
+
+                    {/* // here add notifection  */}
                     <div
                         onClick={() => setIsOpen(true)}
                         className="cursor-pointer hover:opacity-75 transition"

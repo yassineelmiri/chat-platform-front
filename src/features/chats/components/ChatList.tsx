@@ -6,10 +6,10 @@ import ChatBox from "./ChatBox";
 import useChatList from "../hooks/useChatList";
 
 interface ChatListProps {
-  users: any[];
+
 }
 
-const ChatList: React.FC<ChatListProps> = ({ users }) => {
+const ChatList: React.FC<ChatListProps> = () => {
   const {
     chats,
     isLoading,
@@ -19,7 +19,7 @@ const ChatList: React.FC<ChatListProps> = ({ users }) => {
     isModalOpen,
     openModal,
     closeModal,
-  } = useChatList({ users });
+  } = useChatList();
 
   if (isLoading) return <div>Loading chats...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -27,7 +27,7 @@ const ChatList: React.FC<ChatListProps> = ({ users }) => {
 
   return (
     <>
-      <GroupChatModal users={users} isOpen={isModalOpen} onClose={closeModal} />
+      <GroupChatModal  isOpen={isModalOpen} onClose={closeModal} />
       <aside
         className={clsx(
           `

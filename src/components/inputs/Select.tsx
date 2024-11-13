@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
-
 import ReactSelect from 'react-select'
 
 interface SelectProps {
@@ -18,7 +15,7 @@ const Select: React.FC<SelectProps> = ({
   options,
   disabled,
 }) => {
-  return ( 
+  return (
     <div className="z-[100]">
       <label
         className="
@@ -32,23 +29,23 @@ const Select: React.FC<SelectProps> = ({
         {label}
       </label>
       <div className="mt-2">
-      <ReactSelect
-        isDisabled={disabled}
-        value={value}
-        onChange={onChange}
-        isMulti
-        options={options}
-        menuPortalTarget={document.body}
-        styles={{
-          menuPortal: (base) => ({ ...base, zIndex: 9999 })
-        }}
-        classNames={{
-          control: () => 'text-sm',
-        }}
-      />
+        <ReactSelect
+          isDisabled={disabled}
+          value={value}
+          onChange={onChange}
+          isMulti
+          options={options}
+          menuPortalTarget={document.body}
+          styles={{
+            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+          }}
+          classNames={{
+            control: () => 'text-sm',
+          }}
+        />
       </div>
     </div>
-   );
+  );
 }
- 
+
 export default Select;

@@ -10,20 +10,22 @@ import Modal from './Modal';
 import Input from './inputs/Input';
 import Select from './inputs/Select';
 import Button from './Button';
+import { Member } from '../types/chat';
 
 interface GroupChatModalProps {
     isOpen?: boolean;
     onClose: () => void;
-    users: any[];
+
 }
 
 const GroupChatModal: React.FC<GroupChatModalProps> = ({
     isOpen,
     onClose,
-    users = []
+
 }) => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [users, setUsers] = useState<Member[]>([]); // fetch users  from backend and add them here
 
     const {
         register,
@@ -40,8 +42,18 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({
 
     const members = watch('members');
 
+    //TODO
+    // here display list of friends of user 
+
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
 
+
+        // here add logic to create  nw  group 
+        // this is thata need passed :
+        //     {
+        //         "members":["673358a0232c00e921772323"], // list of ids users want add to group
+        //     "isGroup":true // mantion that this chat is group
+        // }
         console.log('on create new group')
 
     };
@@ -70,8 +82,8 @@ const GroupChatModal: React.FC<GroupChatModalProps> = ({
                                 disabled={isLoading}
                                 label="Members"
                                 options={users.map((user) => ({
-                                    value: user.id,
-                                    label: user.name
+                                    value: user._id,
+                                    label: user.username
                                 }))}
                                 onChange={(value) => setValue('members', value, {
                                     shouldValidate: true

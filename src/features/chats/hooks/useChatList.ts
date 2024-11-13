@@ -10,13 +10,11 @@ const fetchChats = async (): Promise<Chat[]> => {
 };
 
 
-interface UseChatListProps {
-    users: any[];
-}
 
 
 
-const useChatList = ({ users }: UseChatListProps) => {
+
+const useChatList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { data: chats, isLoading, error } = useQuery<Chat[], Error>({
@@ -38,7 +36,7 @@ const useChatList = ({ users }: UseChatListProps) => {
         isModalOpen,
         openModal,
         closeModal,
-        users,
+       
     };
 };
 

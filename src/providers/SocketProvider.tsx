@@ -11,7 +11,7 @@ interface SocketContextType {
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
-
+//this is the config socketion 
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
@@ -25,7 +25,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             socket.auth = { token };
             socket.connect();
 
-            // Connection events
+            // Connection events 
             socket.on('connect', () => {
                 setIsConnected(true);
                 console.log('Connected to socket server');
@@ -36,7 +36,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 setIsConnected(false);
             });
 
-            // User status events
+            // User status events we listn if user connected or not
             socket.on('userConnected', (data) => {
                 setOnlineUsers(prev => new Set(prev).add(data.userId));
                 queryClient.invalidateQueries({ queryKey: ['chat-members'] });
@@ -46,7 +46,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     duration: 3000,
                 });
             });
-
+            //we listn if user Disconnected or not
             socket.on('userDisconnected', (data) => {
                 setOnlineUsers(prev => {
                     const newSet = new Set(prev);
@@ -68,20 +68,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 
             // Call notifications
-            // socket.on('incomingCall', (data) => {
-            //     toast.custom((t) => (
-            //         <div className="call-notification">
-            //             <p>{data.callerName} is calling...</p>
-            //             <div>
-            //                 <button onClick={() => handleAcceptCall(data)}>Accept</button>
-            //                 <button onClick={() => handleRejectCall(data)}>Reject</button>
-            //             </div>
-            //         </div>
-            //     ), {
-            //         duration: 30000,
-            //         position: 'top-right',
-            //     });
-            // });
+            // TODO : Here add notifcation litner
         }
 
         return () => {
@@ -90,7 +77,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             socket.off('userConnected');
             socket.off('userDisconnected');
             socket.off('onlineUsers');
-            // socket.off('incomingCall');
+            // socket.off('notification'); // call it here
             socket.disconnect();
         };
     }, [token, user, queryClient]);

@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Auth from '../pages/Auth';
 import MainLayout from '../layouts/MainLayout';
 import ProtectedRoute from '../components/ProtectedRoute';
-import { users } from '../dummyData/users';
+
 import ChatList from '../features/chats/components/ChatList';
 
 export const router = createBrowserRouter([
@@ -25,7 +25,7 @@ export const router = createBrowserRouter([
                     {
                         path: 'chat/:chatId?',
                         element: <ChatList
-                            users={users}
+                           
 
 
                         />,
