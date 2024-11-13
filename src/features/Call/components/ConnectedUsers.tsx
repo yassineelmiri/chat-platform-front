@@ -1,29 +1,51 @@
 import React from 'react';
-import { Participant } from './Call';
+import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa';
+
+interface Participant {
+    userId: string;
+    username: string;
+    muted: boolean;
+    videoOff: boolean;
+}
 
 interface ConnectedUsersProps {
     participants: Map<string, Participant>;
+    type: 'video' | 'audio';
 }
 
-const ConnectedUsers: React.FC<ConnectedUsersProps> = ({ participants }) => {
+const ConnectedUsers: React.FC<ConnectedUsersProps> = ({ participants, type }) => {
     return (
-        <div className="bg-white h-[100vh] rounded-lg p-6 shadow-lg w-100 mt-6">
-            <h3 className="text-xl font-semibold mb-4">Connected Users</h3>
-            <div className="flex flex-col items-center gap-5">
+        <div className="bg-white rounded-lg shadow-lg p-4 w-64">
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Participants ({participants.size})
+            </h3>
+            <div className="space-y-3">
                 {Array.from(participants.values()).map((participant) => (
-                    <div
-                        key={participant.userId}
-                        className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg shadow-md hover:bg-gray-100 transition-colors duration-300 w-full"
-                    >
-                        <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-gray-800">
+                    <div key={participant.userId} 
+                         className="flex items-center justify-between p-2 rounded-lg bg-gray-50">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <span className="text-sm font-medium text-gray-600">
+                                    {participant.username[0].toUpperCase()}
+                                </span>
+                            </div>
+                            <span className="text-sm font-medium text-gray-700">
                                 {participant.username}
                             </span>
-                            <span className={`text-xs ${
-                                participant.muted ? 'text-red-500' : 'text-green-500'
-                            }`}>
-                                {participant.muted ? 'Muted' : 'Speaking'}
-                            </span>
+                        </div>
+                        <div className="flex gap-2">
+                            {participant.muted ? (
+                                <FaMicrophoneSlash className="text-red-500" />
+                            ) : (
+                                <FaMicrophone className="text-green-500" />
+                            )}
+                            {type === 'video' && (
+                                participant.videoOff ? (
+                                    <FaVideoSlash className="text-red-500" />
+                                ) : (
+                                    <FaVideo className="text-green-500" />
+                                )
+                            )}
                         </div>
                     </div>
                 ))}

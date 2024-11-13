@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.call-control-button {
+    @apply p-3 rounded-full text-white transition-colors duration-200;
+}
+
+.call-control-button:hover {
+    @apply opacity-90;
+}
+
+.participant-video {
+    @apply relative rounded-lg overflow-hidden bg-gray-800;
+}
+
+.participant-video.speaking {
+    @apply ring-2 ring-green-500;
+}
+
+.participant-info {
+    @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2;
+}
+
+.participant-name {
+    @apply text-white text-sm font-medium;
+}
+
+.participant-status {
+    @apply text-xs text-gray-300;
+}

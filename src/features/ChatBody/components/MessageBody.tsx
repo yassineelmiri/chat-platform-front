@@ -2,13 +2,13 @@ import React, { useMemo, useRef, useEffect, useState } from "react";
 import MessageBox from "./MessageBox";
 import EmptyState from "../../../components/EmptyState";
 import useMessage from "../hooks/useMessage";
-import { useSocketConnection } from "../../../hooks/useSocket";
+import { useSocket } from "../../../providers/SocketProvider";
 
 const MessageBody: React.FC = () => {
     const { isOpen, chatId, messagesData, isLoading, error } = useMessage();
     const [messages, setMessages] = useState(messagesData);
     const bottomRef = useRef<HTMLDivElement>(null);
-    const socket = useSocketConnection(chatId);
+    const { socket } = useSocket();
 
     useEffect(() => {
         setMessages(messagesData);

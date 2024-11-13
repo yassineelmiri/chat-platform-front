@@ -2,6 +2,7 @@
 import { HiChevronLeft } from 'react-icons/hi'
 import { HiEllipsisHorizontal } from 'react-icons/hi2';
 import { useMemo, useState } from "react";
+
 import useOtherUser from '../../../hooks/useOtherUser';
 import ProfileDrawer from '../../../components/ProfileDrawer';
 import { Link } from 'react-router-dom';
@@ -9,10 +10,11 @@ import AvatarGroup from '../../../components/AvatarGroup';
 import Avatar from '../../../components/Avatar';
 import { Chat } from '../../../types/chat';
 import { FaPhone, FaSearch, FaVideo } from 'react-icons/fa';
-import useCallState from '../../Call/hooks/useCallState';
-import CallNotification from '../../Call/components/CallNotification';
+
 import toast from 'react-hot-toast';
-import Call from '../../Call/components/Call';
+import { useCall } from '../../../providers/CallProvider';
+import useCurrentChat from '../../../hooks/useCurrentChat';
+
 
 
 
@@ -21,20 +23,14 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ chat }) => {
+    const { initiateCall, isCallInitiating, activeCall } = useCall();
     const otherUser = useOtherUser(chat.members);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const { chatId } = useCurrentChat()
 
     if (!chat._id) return toast.error('chat id required')
 
-    const {
-        activeCall,
-        incomingCall,
-        isCallInitiating,
-        handleStartCall,
-        handleAcceptCall,
-        handleEndCall,
-        handleRejectCall
-    } = useCallState(chat._id);
+
 
 
     const statusText = useMemo(() => {
@@ -52,22 +48,7 @@ const Header: React.FC<HeaderProps> = ({ chat }) => {
                 isOpen={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
             />
-            {activeCall && (
-                <Call
-                    chatId={activeCall.chatId}
-                    type={activeCall.type}
-                    onClose={handleEndCall}
-                />
-            )}
 
-            {incomingCall && (
-                <CallNotification
-                    callerName={incomingCall.callerName}
-                    callType={incomingCall.type}
-                    onAccept={handleAcceptCall}
-                    onReject={handleRejectCall}
-                />
-            )}
 
             <div
                 className="
@@ -112,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({ chat }) => {
 
 
                     <button
-                        onClick={() => handleStartCall('audio')}
+                        onClick={() => initiateCall(chatId, 'video')}
                         disabled={isCallInitiating || !!activeCall}
                         className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${isCallInitiating || activeCall
                             ? 'bg-gray-400 cursor-not-allowed'
@@ -124,7 +105,7 @@ const Header: React.FC<HeaderProps> = ({ chat }) => {
 
 
                     <button
-                        onClick={() => handleStartCall('video')}
+                        onClick={() => initiateCall(chatId, 'video')}
                         disabled={isCallInitiating || !!activeCall}
                         className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${isCallInitiating || activeCall
                             ? 'bg-gray-400 cursor-not-allowed'

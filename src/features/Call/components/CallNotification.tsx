@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaPhone, FaPhoneSlash, FaVideo } from 'react-icons/fa';
+import { FaPhone, FaVideo, FaTimes } from 'react-icons/fa';
 
 interface CallNotificationProps {
     callerName: string;
@@ -15,37 +15,31 @@ const CallNotification: React.FC<CallNotificationProps> = ({
     onReject
 }) => {
     return (
-        <div className="fixed top-4 right-4 bg-white rounded-lg shadow-lg p-4 w-80 animate-slide-in">
-            <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                    {callType === 'video' ? (
-                        <FaVideo className="text-blue-500 text-xl" />
-                    ) : (
-                        <FaPhone className="text-blue-500 text-xl" />
-                    )}
+        <div className="fixed top-4 right-4 bg-white rounded-lg shadow-xl p-4 w-80 animate-slide-in">
+            <div className="flex items-center gap-3 mb-3">
+                <div className={`p-2 rounded-full ${callType === 'video' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                    {callType === 'video' ? 
+                        <FaVideo className="text-blue-500 text-xl" /> : 
+                        <FaPhone className="text-green-500 text-xl" />
+                    }
                 </div>
                 <div>
-                    <h3 className="font-semibold">{callerName}</h3>
-                    <p className="text-sm text-gray-500">
-                        Incoming {callType} call...
-                    </p>
+                    <h3 className="font-semibold text-gray-800">Incoming {callType} call</h3>
+                    <p className="text-sm text-gray-600">{callerName}</p>
                 </div>
             </div>
-            
-            <div className="flex justify-end gap-4">
+            <div className="flex justify-end gap-2">
                 <button
                     onClick={onReject}
-                    className="flex items-center gap-2 px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors"
                 >
-                    <FaPhoneSlash />
-                    <span>Reject</span>
+                    Decline
                 </button>
                 <button
                     onClick={onAccept}
-                    className="flex items-center gap-2 px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded-md transition-colors"
                 >
-                    <FaPhone />
-                    <span>Accept</span>
+                    Accept
                 </button>
             </div>
         </div>

@@ -1,5 +1,13 @@
 import React from 'react';
-import { Participant } from './Call';
+import { FaMicrophoneSlash, FaVideoSlash } from 'react-icons/fa';
+
+interface Participant {
+    userId: string;
+    username: string;
+    stream?: MediaStream;
+    muted: boolean;
+    videoOff: boolean;
+}
 
 interface ParticipantGridProps {
     participants: Map<string, Participant>;
@@ -7,50 +15,55 @@ interface ParticipantGridProps {
 }
 
 const ParticipantGrid: React.FC<ParticipantGridProps> = ({ participants, type }) => {
-    const renderParticipant = (participant: Participant) => {
-        const { userId, username, stream, muted, videoOff } = participant;
+    const gridCols = participants.size <= 2 ? 'grid-cols-1' : 
+                    participants.size <= 4 ? 'grid-cols-2' : 
+                    'grid-cols-3';
 
-        return (
-            <div key={userId} className="w-50 h-50 overflow-hidden border-2 border-gray-300 relative">
-                {type === 'video' ? (
-                    <>
+    return (
+        <div className={`grid ${gridCols} gap-4 w-full max-w-6xl mx-auto`}>
+            {Array.from(participants.values()).map((participant) => (
+                <div key={participant.userId} 
+                     className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
+                    {type === 'video' && !participant.videoOff ? (
                         <video
                             ref={el => {
-                                if (el) el.srcObject = stream || null;
+                                if (el && participant.stream) {
+                                    el.srcObject = participant.stream;
+                                }
                             }}
                             autoPlay
                             playsInline
-                            muted={muted}
-                            className={`w-full h-full object-cover ${videoOff ? 'hidden' : ''}`}
+                            muted={participant.muted}
+                            className="w-full h-full object-cover"
                         />
-                        {videoOff && (
-                            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                                <span className="text-white text-lg">{username}</span>
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center">
+                                <span className="text-2xl text-white">
+                                    {participant.username[0].toUpperCase()}
+                                </span>
                             </div>
-                        )}
-                    </>
-                ) : (
-                    <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                        <span className="text-white text-lg">{username}</span>
-                    </div>
-                )}
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                    <span className="bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-                        {username}
-                    </span>
-                    {muted && (
-                        <span className="bg-red-500 bg-opacity-75 text-white px-2 py-1 rounded">
-                            🎤
-                        </span>
+                        </div>
                     )}
-                </div>
-            </div>
-        );
-    };
 
-    return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 mb-4">
-            {Array.from(participants.values()).map(renderParticipant)}
+                    {/* Participant info overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                        <div className="flex items-center justify-between">
+                            <span className="text-white font-medium">
+                                {participant.username}
+                            </span>
+                            <div className="flex gap-2">
+                                {participant.muted && (
+                                    <FaMicrophoneSlash className="text-red-500" />
+                                )}
+                                {type === 'video' && participant.videoOff && (
+                                    <FaVideoSlash className="text-red-500" />
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 };
